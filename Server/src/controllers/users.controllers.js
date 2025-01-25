@@ -24,7 +24,7 @@ const generateRefreshToken = (user) => {
 //Register User
 const registerUser = async (req, res) => {
   try {
-    const { username,name,nic,phone, email, password, } = req.body;
+    const { username,name,nic,phone, email, password, role} = req.body;
 
     if (!username) return res.status(400).json({ message: "user Name required" }); 
     if (!name) return res.status(400).json({ message: "Name required" }); 
@@ -32,6 +32,7 @@ const registerUser = async (req, res) => {
     if (!phone) return res.status(400).json({ message: "phone number required" });
     if (!email) return res.status(400).json({ message: "email required" });
     if (!password) return res.status(400).json({ message: "password required" });
+    if (!role) return res.status(400).json({ message: "role required" });
 
     const userName = await Users.findOne({ username: username });
     if (userName) return res.status(401).json({ message: "username not available" });
@@ -46,6 +47,7 @@ const registerUser = async (req, res) => {
       password,
       phone,
       nic,
+      role
 
     });
 

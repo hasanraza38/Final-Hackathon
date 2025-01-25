@@ -1,5 +1,5 @@
 import loanCategorySchema from "../models/loanCategory.models.js"
-import loanCategorySchema from "../models/subCategory.models.js"
+// import subCategorySchema from "../models/subCategory.models.js"
 
 
 // Create a new loan category

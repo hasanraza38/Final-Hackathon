@@ -1,5 +1,5 @@
 import express from "express";
-import{approveLoanApplication, rejectLoanApplication} from "../controllers/admin.controlers"
+import{approveLoanApplication, rejectLoanApplication} from "../controllers/admin.controlers.js"
 
 
 const router = express.Router();
