@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 
 const userSchema = new Schema(
   {
-    username: {
+    name: {
       type: String,
       required: true,
     },
@@ -20,7 +20,7 @@ const userSchema = new Schema(
     },
     role: {
       type: String,
-      enum: ["admin", "customer"],
+      enum: ["admin", "Appli  "],
       default: "customer",
     },
     products: [

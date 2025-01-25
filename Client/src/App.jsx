@@ -1,83 +1,26 @@
-import React, { useEffect, useState } from "react";
-import Nav from "./components/navbar/Nav";
-import { getAllData } from "./config/firebase/firebasemethods";
+import React from 'react'
 
 const App = () => {
-  // States
-  const [data, setData] = useState([]);
-  // States
-
-  //  useEffect
-  useEffect(() => {
-    const renderAllData = async () => {
-      const blogs = await getAllData("blog's");
-      console.log(blogs);
-      data.push(blogs);
-      setData(...data);
-    };
-    renderAllData();
-  }, []);
-  //  useEffect
-
   return (
+
     <>
-      {/* navbar */}
-      <Nav />
-      {/* navbar */}
-
-      {/* Main Div */}
-      <div className="w-full">
-        {/* Heading */}
-        <div className="mt-5">
-          <h1 className="text-center text-3xl text-[#00D9C0] font-semibold ">
-            Blog's
-          </h1>
-        </div>
-        {/* Heading */}
-
-        {/* Blogs */}
-
-        <div className="flex flex-col gap-6 h-full p-11 ">
-          {data ? (
-            data.map((item) => {
-              return (
-                <div
-                  key={item.documentId}
-                  className=" p-5 rounded-2xl bg-[#00D9C0] w-full shadow-2xl  text-black"
-                >
-                  <div className="flex gap-2">
-                    <div className="avatar">
-                      <div className="w-14 rounded">
-                        <img
-                          src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                          alt="Tailwind-CSS-Avatar-component"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <h1 className="font-sans text-md text-black font-semibold">
-                        {item.title}
-                      </h1>
-                      <p className="text-zinc-700 font-medium">
-                        Hasan raza-August 16
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mt-3">
-                    <p className="text-black font-medium">{item.blog}</p>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <h1 className="text-white text-center text-4xl my-5">loading...</h1>
-          )}
-        </div>
-        {/* Blogs */}
-      </div>
-      {/* Main Div */}
+    <div className="collapse collapse-arrow bg-base-100 border border-base-300">
+  <input type="radio" name="my-accordion-2" defaultChecked />
+  <div className="collapse-title font-semibold">How do I create an account?</div>
+  <div className="collapse-content text-sm">Click the "Sign Up" button in the top right corner and follow the registration process.</div>
+</div>
+<div className="collapse collapse-arrow bg-base-100 border border-base-300">
+  <input type="radio" name="my-accordion-2" />
+  <div className="collapse-title font-semibold">I forgot my password. What should I do?</div>
+  <div className="collapse-content text-sm">Click on "Forgot Password" on the login page and follow the instructions sent to your email.</div>
+</div>
+<div className="collapse collapse-arrow bg-base-100 border border-base-300">
+  <input type="radio" name="my-accordion-2" />
+  <div className="collapse-title font-semibold">How do I update my profile information?</div>
+  <div className="collapse-content text-sm">Go to "My Account" settings and select "Edit Profile" to make changes.</div>
+</div>
     </>
-  );
-};
+  )
+}
 
-export default App;
+export default App
