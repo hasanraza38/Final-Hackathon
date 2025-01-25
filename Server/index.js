@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import usersRoutes from "./src/routes/users.routes.js";
 import loanRoutes from "./src/routes/loanCategories.routes.js"
+import subCategoryRoutes from "./src/routes/subCategory.routes.js"
 
 const app = express();
 const port =process.env.PORT;
@@ -20,6 +21,7 @@ app.get("/", (req, res) => {
 
 // routes
 app.use("/api/v1", loanRoutes);
+app.use("/api/v1", subCategoryRoutes);
 app.use("/api/v1/auth/", usersRoutes);
 
 connectDB()

@@ -1,3 +1,5 @@
+import express from "express";
+
 import{createLoanCategory, getAllLoanCategories, getSingleLoanCategory, updateLoanCategory, deleteLoanCategory} from "../controllers/loanCategory.controllers.js"
 
 
