@@ -26,8 +26,8 @@ const getLoanApplications = async (req, res) => {
 };
 // get loan application
 
-
-const updateLoanApplicationStatus = async (req, res) => {
+// edit loan application
+const updateLoanApplication = async (req, res) => {
   try {
     const application = await LoanApplicationSchema.findByIdAndUpdate(
       req.params.id,
@@ -39,7 +39,9 @@ const updateLoanApplicationStatus = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+// edit loan application
 
+// delete loan application
 const deleteLoanApplication = async (req, res) => {
   try {
     await LoanApplicationSchema.findByIdAndDelete(req.params.id);
@@ -48,3 +50,6 @@ const deleteLoanApplication = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+// delete loan application
+
+export {createLoanApplication, getLoanApplications,updateLoanApplication,deleteLoanApplication}

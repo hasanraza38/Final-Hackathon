@@ -30,7 +30,12 @@ const LoanApplicationSchema = new mongoose.Schema({
     { type: Date, 
         default: Date.now 
     },
-  });
+  },
+  {
+    timestamps: true, 
+  }
+);
   
-  module.exports = mongoose.model('LoanApplication', LoanApplicationSchema);
+export default mongoose.model("LoanApplication", LoanApplicationSchema);
+
   

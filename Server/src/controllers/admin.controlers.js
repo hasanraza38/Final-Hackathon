@@ -1,9 +1,9 @@
-const LoanApplication = require('../models/LoanApplication');
-import
+import LoanApplicationSchema from "../models/loanApplication.models.js"
 
-exports.approveLoanApplication = async (req, res) => {
+// approve application 
+const approveLoanApplication = async (req, res) => {
   try {
-    const application = await LoanApplication.findByIdAndUpdate(
+    const application = await LoanApplicationSchema.findByIdAndUpdate(
       req.params.id,
       { status: 'Approved' },
       { new: true }
@@ -13,10 +13,13 @@ exports.approveLoanApplication = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+// approve application 
 
-exports.rejectLoanApplication = async (req, res) => {
+
+// reject application 
+const rejectLoanApplication = async (req, res) => {
   try {
-    const application = await LoanApplication.findByIdAndUpdate(
+    const application = await LoanApplicationSchema.findByIdAndUpdate(
       req.params.id,
       { status: 'Rejected' },
       { new: true }
@@ -26,3 +29,6 @@ exports.rejectLoanApplication = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+// reject application 
+
+export {approveLoanApplication, rejectLoanApplication}

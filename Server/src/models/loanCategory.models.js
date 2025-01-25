@@ -20,6 +20,9 @@ const loanCategorySchema = new mongoose.Schema({
     }
 
   ],
+},
+{
+  timestamps: true, 
 });
 
-module.exports = mongoose.model("LoanCategory", loanCategorySchema);
+export default mongoose.model("LoanCategory", loanCategorySchema);

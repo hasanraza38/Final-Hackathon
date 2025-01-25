@@ -5,6 +5,11 @@ const Schema = mongoose.Schema;
 
 const userSchema = new Schema(
   {
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     name: {
       type: String,
       required: true,
@@ -14,27 +19,25 @@ const userSchema = new Schema(
       required: true,
       unique: true,
     },
+    phone:{
+      type: Number,
+      required: true,
+      unique: true,
+    },
+    nic:{
+      type: Number,
+      required: true,
+      unique: true,
+    },
     password: {
       type: String,
       required: true,
     },
     role: {
       type: String,
-      enum: ["admin", "Appli  "],
-      default: "customer",
+      enum: ["admin", "Applicant  "],
+      required: true,
     },
-    products: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Product",
-      },
-    ],
-    orders: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Order",
-      },
-    ],
   },
   {
     timestamps: true, 

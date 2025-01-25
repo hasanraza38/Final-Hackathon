@@ -1,20 +1,6 @@
 import Users from "../models/users.models.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import nodemailer from "nodemailer";
-
-// nodemailer
-const transporter = nodemailer.createTransport({
-  host: "smtp.ethereal.email",
-  port: 587,
-  secure: false,
-  auth: {
-    user: "zakary.champlin57@ethereal.email",
-    pass: "rr173s9hvb5v3a5fhE",
-  },
-});
-// nodemailer
-
 
 
 //generate accesstoken
@@ -38,9 +24,12 @@ const generateRefreshToken = (user) => {
 //Register User
 const registerUser = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username,name,nic,phone, email, password, } = req.body;
 
-    if (!username) return res.status(400).json({ message: "user Name required" });
+    if (!username) return res.status(400).json({ message: "user Name required" }); 
+    if (!name) return res.status(400).json({ message: "Name required" }); 
+    if (!nic) return res.status(400).json({ message: "NIC number required" });
+    if (!phone) return res.status(400).json({ message: "phone number required" });
     if (!email) return res.status(400).json({ message: "email required" });
     if (!password) return res.status(400).json({ message: "password required" });
 
@@ -52,20 +41,17 @@ const registerUser = async (req, res) => {
 
     const createUser = await Users.create({
       username,
+      name,
       email,
       password,
+      phone,
+      nic,
+
     });
 
     res.status(201).json({ message: "user registered successfully", data: createUser });
 
-    const info = await transporter.sendMail({
-      from: '"Zakary Champlin" <zakary.champlin57@ethereal.email>',
-      to: `${email}`,
-      subject: "HEllO!!",
-      text: `Welcome to our platform, ${username}`,
-    });
-
-    console.log("Email sent: %s", info.messageId);
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error", error: error.message });
