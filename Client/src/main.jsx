@@ -1,54 +1,43 @@
-// import { StrictMode } from 'react'
-// import { createRoot } from 'react-dom/client'
-// import './index.css'
-// import App from './App.jsx'
-
-// createRoot(document.getElementById('root')).render(
-//   <StrictMode>
-//     <App />
-//   </StrictMode>,
-// )
-
-
 import { createRoot } from "react-dom/client";
-
-import App from "./App.jsx";
 import "./index.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Layout from "./Layout.jsx";
-// import Register from "./screens/register/Register.jsx";
-// import Dashboard from "./screens/dashboard/Dashboard.jsx";
-// import Login from "./screens/login/Login.jsx"
+import Register from "./pages/RegisterUser.jsx";
+import Login from "./pages/Login.jsx";
+import Logout from "./pages/Logout.jsx";
+import Home from "./pages/Home.jsx";
+import { RouterProvider } from "react-router/dom";
+import { createBrowserRouter } from "react-router";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Layout/>,
+    element: <App />,
     children: [
       {
-         path:'',
-         element: <App/>
+        path: "/Register",
+        element: <Register/>,
       },
       {
-        path: "/login",
-        element:<h1>login</h1>
+        path: "/Home",
+        element: <Home />,
       },
       {
-        path: '/register',
-        element:<h1>login</h1>
-
-        // element: <Register/>
-
+        path: "/Login",
+        element: <Login />,
       },
       {
-        path: '/dashboard',
-        element:<h1>dashboard</h1>
-        // element: <Dashboard/>
-      }
-  ],
+        path: "/Logout",
+        element: <Logout />,
+      },
+      
+    ],
   },
 ]);
 
 createRoot(document.getElementById("root")).render(
-  <RouterProvider router={router}></RouterProvider>
+  <RouterProvider router={router}>
+
+      <App />
+   
+   
+  </RouterProvider>
 );
