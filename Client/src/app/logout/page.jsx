@@ -13,7 +13,7 @@ const LogoutPage = () => {
     setLoading(true);
     setError(null);
     try {
-      await axios.post("https://final-hackathon-sigma-nine.vercel.app/logoutuser");
+      await axios.post("https://final-hackathon-sigma-nine.vercel.app/api/v1/auth/loginuser");
       router.push("/login"); 
     } catch (err) {
       setError("Failed to log out. Please try again.");

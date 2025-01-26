@@ -26,7 +26,7 @@ const RegisterUserPage = () => {
 
     try {
       const response = await axios.post(
-        "https://final-hackathon-sigma-nine.vercel.app/registeruser",
+        "https://final-hackathon-sigma-nine.vercel.app//api/v1/auth/registeruser",
         formData
       );
       setMessage(response.data.message || "User registered successfully!");

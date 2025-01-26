@@ -14,7 +14,7 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post("https://final-hackathon-sigma-nine.vercel.app/api/loginuser", {
+      const response = await axios.post("https://final-hackathon-sigma-nine.vercel.app/api/", {
         email,
         password,
       });
