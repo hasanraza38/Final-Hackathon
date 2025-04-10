@@ -1,41 +1,19 @@
 import mongoose from "mongoose";
 
+const loanSchema = new mongoose.Schema({
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    category: { type: String, required: true },
+    subcategory: { type: String, required: true },
+    loanAmount: { type: Number, required: true },
+    initialDeposit: { type: Number, required: true },
+    loanPeriod: { type: Number, required: true }, // in years
+    status: { type: String, default: 'pending' },
+    tokenNumber: { type: String },
+    appointment: { type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' },
+    address: {
+        city: String,
+        country: String
+    }
+});
 
-const LoanApplicationSchema = new mongoose.Schema({
-    applicantName: { 
-        type: String,
-         required: true 
-        },
-    loanCategory: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'LoanCategory', 
-        required: true
-     },
-    subcategory: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Subcategory'
-     },
-    requestedAmount: { type: Number, 
-        required: true
-     },
-    status: {
-         type: String, enum: ['Pending', 'Approved', 'Rejected'], 
-         default: 'Pending' 
-        },
-    loanPeriod: { type: 
-        Number, 
-        required: true 
-    }, 
-    applicationDate: 
-    { type: Date, 
-        default: Date.now 
-    },
-  },
-  {
-    timestamps: true, 
-  }
-);
-  
-export default mongoose.model("LoanApplication", LoanApplicationSchema);
-
-  
+export default mongoose.model('Loan', loanSchema);
