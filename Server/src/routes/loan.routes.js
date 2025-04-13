@@ -1,6 +1,6 @@
 import express from 'express';      
 import { submitLoan, getLoanDetails } from '../controllers/loan.controllers.js';
-import { authenticateToken } from '../middleware/authMiddleware.js';
+import { authenticateToken } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 

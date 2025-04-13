@@ -13,7 +13,7 @@
 
 import express from 'express';
 import { getApplications, updateApplication } from '../controllers/admin.controllers.js';
-import { authenticateToken, isAdmin } from '../middleware/authMiddleware.js';
+import { authenticateToken, isAdmin } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 

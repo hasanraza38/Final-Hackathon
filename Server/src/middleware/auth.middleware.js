@@ -39,4 +39,4 @@ function isAdmin(req, res, next) {
   next();
 }
 
-export default { authenticateToken, isAdmin };
+export { authenticateToken, isAdmin };

@@ -1,5 +1,5 @@
 import User from '../models/auth.models.js';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import { generateAccessToken, generateRefreshToken } from '../utils/tokens.js';
 import sendEmail from '../utils/sendEmail.js';
 import jwt from 'jsonwebtoken';
