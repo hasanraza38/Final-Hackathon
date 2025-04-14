@@ -40,27 +40,36 @@
 
 
 import express from 'express'; 
-import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import authRoutes from './src/routes/auth.routes.js';
 import loanRoutes from './src/routes/loan.routes.js';
 import adminRoutes from './src/routes/admin.routes.js';
 import dotenv from "dotenv";
+import connectDB from './src/db/index.js';
 dotenv.config();
 
 const app = express();
+const port = process.env.PORT;
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error(err));
-
+// routes
 app.use('/api/auth', authRoutes);
 app.use('/api/loans', loanRoutes);
 app.use('/api/admin', adminRoutes);
+// routes
 
-app.listen(5000, () => console.log('Server running on port 5000'));   
+
+connectDB()
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`⚙️  Server is running at port : ${port}`);
+    });
+  })
+  .catch((err) => {
+    console.log("MONGO DB connection failed !!! ", err);
+  });
+
