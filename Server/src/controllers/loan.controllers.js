@@ -44,6 +44,8 @@ const submitLoan = async (req, res) => {
   });
 };
 
+
+
 const getLoanDetails = async (req, res) => {
   const loan = await Loan.findById(req.params.id).populate('userId', 'name email').populate('appointment');
   if (!loan) return res.status(404).json({ message: 'Loan not found' });

@@ -1,22 +1,38 @@
 import User from '../models/auth.models.js';
 import bcrypt from 'bcrypt';
 import { generateAccessToken, generateRefreshToken } from '../utils/tokens.js';
-import sendEmail from '../utils/sendEmail.js';
+// import sendEmail from '../utils/sendEmail.js';
 import jwt from 'jsonwebtoken';
 
 const register = async (req, res) => {
-  const { cnic, email, name } = req.body;
+  const { cnic, email, name ,password} = req.body;
 
-  const tempPassword = Math.random().toString(36).slice(-8);
-  const hashedPassword = await bcrypt.hash(tempPassword, 10);
+  if (!email) return res.status(400).json({ message: "email required" });
+  if (!name) return res.status(400).json({ message: "name required" });
+  if (!cnic) return res.status(400).json({ message: "cnic number required" });
+  if (!password) return res.status(400).json({ message: "password required" });
+  
+  const user = await User.findOne({ email });
+  if (user) return res.status(401).json({ message: "user already exist" });
 
-  const user = new User({ cnic, email, name, password: hashedPassword });
-  await user.save();
+  // const tempPassword = Math.random().toString(36).slice(-8);
+  // await sendEmail(email, 'Your Temporary Password', `Your temporary password is: ${tempPassword}`);
 
-  await sendEmail(email, 'Your Temporary Password', `Your temporary password is: ${tempPassword}`);
+
+  const createUser = await User.create({
+    cnic,
+    email,
+    name,
+    password,
+  });
+
+  res.json({ message: "user registered successfully", data: createUser });
 
   res.status(201).json({ message: 'User registered. Check your email for password.' });
 };
+
+
+
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -34,6 +50,8 @@ const login = async (req, res) => {
 
   res.json({ message: 'Logged in', role: user.role });
 };
+
+
 
 const refreshToken = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;

@@ -57,10 +57,13 @@ app.use(cookieParser());
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 
 // routes
-app.use('/api/auth', authRoutes);
-app.use('/api/loans', loanRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/loans', loanRoutes);
+app.use('/api/v1/admin', adminRoutes);
 // routes
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
 
 
 connectDB()
