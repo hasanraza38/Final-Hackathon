@@ -1,28 +1,10 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const loanCategorySchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  maxLoanAmount: {
-    type: Number,
-    required: true,
-  },
-  loanPeriod: { 
-    type: Number, 
-    required: true 
-}, 
-  subcategories: 
-  [{ 
-    type: mongoose.Schema.Types.ObjectId,
-     ref: "Subcategory" 
-    }
-
-  ],
-},
-{
-  timestamps: true, 
+  name: { type: String, required: true, unique: true },
+  subcategories: [{ type: String, required: true }],
+  maxLoan: { type: Number, required: true },
+  loanPeriod: { type: Number, required: true } // in years
 });
 
-export default mongoose.model("LoanCategory", loanCategorySchema);
+export default mongoose.model('LoanCategory', loanCategorySchema);

@@ -1,13 +1,13 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const SubcategorySchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    loanCategory: { type: mongoose.Schema.Types.ObjectId, ref: 'LoanCategory', required: true },
-  },
-  {
-    timestamps: true, 
-  });
-  
-  export default mongoose.model("Subcategory", SubcategorySchema);
-  
-  
+// const loanSubcategorySchema = new mongoose.Schema({
+//   categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'LoanCategory', required: true },
+//   name: { type: String, required: true, unique: true }
+// });
+
+const subcategorySchema = new mongoose.Schema({
+  category: { type: String, required: true },
+  name: { type: String, required: true, unique: true }
+});
+
+export default mongoose.model('Subcategory', subcategorySchema);
