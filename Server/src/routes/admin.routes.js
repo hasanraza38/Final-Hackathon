@@ -3,13 +3,11 @@ import {
   getApplications,
   approveLoanApplication,
   rejectLoanApplication,
-  addLoan,
-  editLoan,
-  deleteLoan,
+  deleteCategory,
+  editCategory, 
+  addCategory,
+  getCategories,
   addSubcategory,
-  editSubcategory,
-  deleteSubcategory,
-  getSubcategories
 } from '../controllers/admin.controllers.js';
 import { authenticateToken, isAdmin } from '../middleware/auth.middleware.js';
 
@@ -19,14 +17,10 @@ const router = express.Router();
 router.get('/applications', authenticateToken, isAdmin, getApplications);
 router.put('/applications/:id/approve', authenticateToken, isAdmin, approveLoanApplication);
 router.put('/applications/:id/reject', authenticateToken, isAdmin, rejectLoanApplication);
-router.post('/loans', authenticateToken, isAdmin, addLoan);
-router.put('/loans/:id', authenticateToken, isAdmin, editLoan);
-router.delete('/loans/:id', authenticateToken, isAdmin, deleteLoan);
-
-// Subcategory routes
-router.get('/subcategories', authenticateToken, isAdmin, getSubcategories);
-router.post('/subcategories', authenticateToken, isAdmin, addSubcategory);
-router.put('/subcategories/:id', authenticateToken, isAdmin, editSubcategory);
-router.delete('/subcategories/:id', authenticateToken, isAdmin, deleteSubcategory);
+router.get('/getcategries', authenticateToken, getCategories); // Allow all authenticated users to fetch categories
+router.post('/addcategory', authenticateToken, isAdmin, addCategory);
+router.post('/addsubcategory', authenticateToken, isAdmin, addSubcategory);
+router.put('/editcategory/:id', authenticateToken, isAdmin, editCategory);
+router.delete('/deletecategory/:id', authenticateToken, isAdmin, deleteCategory);
 
 export default router;

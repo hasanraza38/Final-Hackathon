@@ -4,6 +4,38 @@ import { generateAccessToken, generateRefreshToken } from '../utils/tokens.js';
 // import sendEmail from '../utils/sendEmail.js';
 import jwt from 'jsonwebtoken';
 
+const createAdmin = async (req, res) => {
+  const { cnic, email, name, password, address } = req.body;
+
+  if (!email) return res.status(400).json({ message: "email required" });
+  if (!name) return res.status(400).json({ message: "name required" });
+  if (!cnic) return res.status(400).json({ message: "cnic number required" });
+  if (!password) return res.status(400).json({ message: "password required" });
+  
+  const admin = await User.findOne({ email });
+  if (admin) return res.status(401).json({ message: "user already exist" });
+
+
+  // const hashedPassword = await bcrypt.hash(password, 10);
+
+  const user = new User({
+    cnic,
+    email,
+    name,
+    password,
+    role: 'admin',
+    address
+  });
+
+  try {
+    await user.save();
+    res.status(201).json({ message: 'Admin created successfully' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+
 const register = async (req, res) => {
   const { cnic, email, name ,password} = req.body;
 
@@ -45,8 +77,9 @@ const login = async (req, res) => {
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
 
-  res.cookie('accessToken', accessToken, { httpOnly: true, secure: true, sameSite: 'strict' });
-  res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict' });
+  res.cookie('accessToken', accessToken, { httpOnly: true, secure: false, sameSite: 'strict' });
+  res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: false, sameSite: 'strict' });
+  console.log('Cookies set:', { accessToken, refreshToken });
 
   res.json({ message: 'Logged in', role: user.role });
 };
@@ -65,4 +98,4 @@ const refreshToken = async (req, res) => {
   });
 };
 
-export {register, login, refreshToken}
+export {register, login, refreshToken, createAdmin}
