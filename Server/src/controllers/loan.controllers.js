@@ -2,6 +2,7 @@ import Loan from '../models/loan.models.js';
 import Guarantor from '../models/guarantor.models.js';
 import Appointment from '../models/appointment.models.js';
 import generateQRCode from '../utils/generateQRCode.js';
+import loanCategory from '../models/loanCategory.models.js';
 
 const submitLoan = async (req, res) => {
   try {
@@ -9,7 +10,7 @@ const submitLoan = async (req, res) => {
     const userId = req.user.id;
 
     // Validate category and subcategory
-    const categoryDoc = await Category.findOne({ name: category });
+    const categoryDoc = await loanCategory.findOne({ name: category });
     if (!categoryDoc) return res.status(400).json({ message: 'Invalid category' });
     if (!categoryDoc.subcategories.includes(subcategory)) {
       return res.status(400).json({ message: 'Invalid subcategory' });

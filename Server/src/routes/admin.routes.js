@@ -19,7 +19,7 @@ router.put('/applications/:id/approve', authenticateToken, isAdmin, approveLoanA
 router.put('/applications/:id/reject', authenticateToken, isAdmin, rejectLoanApplication);
 router.get('/getcategries', authenticateToken, getCategories); // Allow all authenticated users to fetch categories
 router.post('/addcategory', authenticateToken, isAdmin, addCategory);
-router.post('/addsubcategory', authenticateToken, isAdmin, addSubcategory);
+router.post('/addsubcategory/:categoryId', authenticateToken, isAdmin, addSubcategory);
 router.put('/editcategory/:id', authenticateToken, isAdmin, editCategory);
 router.delete('/deletecategory/:id', authenticateToken, isAdmin, deleteCategory);
 

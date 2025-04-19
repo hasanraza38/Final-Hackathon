@@ -58,9 +58,13 @@ const register = async (req, res) => {
     password,
   });
 
-  res.json({ message: "user registered successfully", data: createUser });
+  try {
+    // await user.save();
+    res.status(201).json({ message: 'User registered successfully' , data: createUser });
+  } catch (error) {
+    res.status(400).json({ error: error.message }); // Line 63 (error is here)
+  }
 
-  res.status(201).json({ message: 'User registered. Check your email for password.' });
 };
 
 
@@ -90,7 +94,7 @@ const refreshToken = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   if (!refreshToken) return res.status(401).json({ message: 'No refresh token' });
 
-  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+  jwt.verify(refreshToken, process.env.REFRESH_JWT_SECRET, (err, user) => {
     if (err) return res.status(403).json({ message: 'Invalid refresh token' });
     const accessToken = generateAccessToken({ id: user.id, role: user.role });
     res.cookie('accessToken', accessToken, { httpOnly: true, secure: true, sameSite: 'strict' });

@@ -10,7 +10,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await api.post('/auth/login', { email, password });
+      const { data } = await api.post('/v1/auth/login', { email, password });
       if (data.role === 'admin') {
         navigate('/admin'); // Use navigate instead of history.push
       } else {

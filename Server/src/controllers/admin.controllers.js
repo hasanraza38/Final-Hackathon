@@ -1,6 +1,7 @@
 import Loan from '../models/loan.models.js';
 import Subcategory from '../models/subCategory.models.js';
 import loanCategory from '../models/loanCategory.models.js';
+import mongoose from 'mongoose';
 
 
 // Get all loan applications
@@ -55,12 +56,12 @@ const rejectLoanApplication = async (req, res) => {
 // add loan category
 const addCategory = async (req, res) => {
   try {
-    const { name, subcategories, maxLoan, period } = req.body;
+    const { name, subcategories, maxLoan, loanPeriod } = req.body;
     const category = new loanCategory({
       name,
       subcategories: subcategories || [],
       maxLoan,
-      period
+      loanPeriod
     });
     await category.save();
     res.status(201).json({ message: 'Category added', category });
@@ -70,23 +71,44 @@ const addCategory = async (req, res) => {
 };
 
 // Add subcategory to an existing category
+
 const addSubcategory = async (req, res) => {
   try {
-    const { categoryId, subcategory } = req.body;
+    const { categoryId } = req.params; // Extract categoryId from URL params
+    const { subcategory } = req.body; // Extract subcategory from body
+
+    // Validate inputs
+    if (!categoryId) {
+      return res.status(400).json({ message: 'categoryId is required in URL params' });
+    }
+    if (!subcategory) {
+      return res.status(400).json({ message: 'subcategory is required in request body' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+      return res.status(400).json({ message: 'Invalid categoryId format' });
+    }
+    if (typeof subcategory !== 'string') {
+      return res.status(400).json({ message: 'subcategory must be a string' });
+    }
+
     const category = await loanCategory.findById(categoryId);
-    if (!category) return res.status(404).json({ message: 'Category not found' });
-    
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+
     if (category.subcategories.includes(subcategory)) {
       return res.status(400).json({ message: 'Subcategory already exists' });
     }
-    
+
     category.subcategories.push(subcategory);
     await category.save();
     res.status(200).json({ message: 'Subcategory added', category });
   } catch (error) {
+    console.error('Add Subcategory Error:', error); // Debug log
     res.status(400).json({ error: error.message });
   }
 };
+
 // Edit category
 const editCategory = async (req, res) => {
   try {
