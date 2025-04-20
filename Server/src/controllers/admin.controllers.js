@@ -3,7 +3,6 @@ import Subcategory from '../models/subCategory.models.js';
 import loanCategory from '../models/loanCategory.models.js';
 import mongoose from 'mongoose';
 
-
 // Get all loan applications
 const getApplications = async (req, res) => {
   try {
@@ -70,14 +69,13 @@ const addCategory = async (req, res) => {
   }
 };
 
-// Add subcategory to an existing category
+// Add subcategory 
 
 const addSubcategory = async (req, res) => {
   try {
-    const { categoryId } = req.params; // Extract categoryId from URL params
-    const { subcategory } = req.body; // Extract subcategory from body
+    const { categoryId } = req.params; 
+    const { subcategory } = req.body; 
 
-    // Validate inputs
     if (!categoryId) {
       return res.status(400).json({ message: 'categoryId is required in URL params' });
     }
@@ -104,7 +102,7 @@ const addSubcategory = async (req, res) => {
     await category.save();
     res.status(200).json({ message: 'Subcategory added', category });
   } catch (error) {
-    console.error('Add Subcategory Error:', error); // Debug log
+    console.error('Add Subcategory Error:', error); 
     res.status(400).json({ error: error.message });
   }
 };

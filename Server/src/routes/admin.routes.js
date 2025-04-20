@@ -13,11 +13,10 @@ import { authenticateToken, isAdmin } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
-// Loan application routes
 router.get('/applications', authenticateToken, isAdmin, getApplications);
 router.put('/applications/:id/approve', authenticateToken, isAdmin, approveLoanApplication);
 router.put('/applications/:id/reject', authenticateToken, isAdmin, rejectLoanApplication);
-router.get('/getcategries', authenticateToken, getCategories); // Allow all authenticated users to fetch categories
+router.get('/getcategries', authenticateToken, getCategories); 
 router.post('/addcategory', authenticateToken, isAdmin, addCategory);
 router.post('/addsubcategory/:categoryId', authenticateToken, isAdmin, addSubcategory);
 router.put('/editcategory/:id', authenticateToken, isAdmin, editCategory);

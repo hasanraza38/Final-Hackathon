@@ -1,9 +1,9 @@
 import User from '../models/auth.models.js';
 import bcrypt from 'bcrypt';
 import { generateAccessToken, generateRefreshToken } from '../utils/tokens.js';
-// import sendEmail from '../utils/sendEmail.js';
 import jwt from 'jsonwebtoken';
 
+//create admin
 const createAdmin = async (req, res) => {
   const { cnic, email, name, password, address } = req.body;
 
@@ -11,12 +11,9 @@ const createAdmin = async (req, res) => {
   if (!name) return res.status(400).json({ message: "name required" });
   if (!cnic) return res.status(400).json({ message: "cnic number required" });
   if (!password) return res.status(400).json({ message: "password required" });
-  
+
   const admin = await User.findOne({ email });
   if (admin) return res.status(401).json({ message: "user already exist" });
-
-
-  // const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = new User({
     cnic,
@@ -34,22 +31,20 @@ const createAdmin = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+//create admin
 
 
+// register user
 const register = async (req, res) => {
-  const { cnic, email, name ,password} = req.body;
+  const { cnic, email, name, password } = req.body;
 
   if (!email) return res.status(400).json({ message: "email required" });
   if (!name) return res.status(400).json({ message: "name required" });
   if (!cnic) return res.status(400).json({ message: "cnic number required" });
   if (!password) return res.status(400).json({ message: "password required" });
-  
+
   const user = await User.findOne({ email });
   if (user) return res.status(401).json({ message: "user already exist" });
-
-  // const tempPassword = Math.random().toString(36).slice(-8);
-  // await sendEmail(email, 'Your Temporary Password', `Your temporary password is: ${tempPassword}`);
-
 
   const createUser = await User.create({
     cnic,
@@ -59,17 +54,17 @@ const register = async (req, res) => {
   });
 
   try {
-    // await user.save();
-    res.status(201).json({ message: 'User registered successfully' , data: createUser });
+    res.status(201).json({ message: 'User registered successfully', data: createUser });
   } catch (error) {
-    res.status(400).json({ error: error.message }); // Line 63 (error is here)
+    res.status(400).json({ error: error.message }); 
   }
 
 };
+// register user
 
 
 
-
+//login user
 const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -81,12 +76,13 @@ const login = async (req, res) => {
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
 
-  res.cookie('accessToken', accessToken, { httpOnly: true, secure: false, sameSite: 'strict' });
-  res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: false, sameSite: 'strict' });
-  console.log('Cookies set:', { accessToken, refreshToken });
+  res.cookie('accessToken', accessToken, { httpOnly: true, secure: true, sameSite: 'strict' });
+  res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict' });
+  // console.log('Cookies set:', { accessToken, refreshToken });
 
   res.json({ message: 'Logged in', role: user.role });
 };
+//login user
 
 
 
@@ -102,4 +98,4 @@ const refreshToken = async (req, res) => {
   });
 };
 
-export {register, login, refreshToken, createAdmin}
+export { register, login, refreshToken, createAdmin }

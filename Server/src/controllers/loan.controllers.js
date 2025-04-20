@@ -4,12 +4,12 @@ import Appointment from '../models/appointment.models.js';
 import generateQRCode from '../utils/generateQRCode.js';
 import loanCategory from '../models/loanCategory.models.js';
 
+// submit loan
 const submitLoan = async (req, res) => {
   try {
     const { category, subcategory, loanAmount, initialDeposit, loanPeriod, guarantors, address } = req.body;
     const userId = req.user.id;
 
-    // Validate category and subcategory
     const categoryDoc = await loanCategory.findOne({ name: category });
     if (!categoryDoc) return res.status(400).json({ message: 'Invalid category' });
     if (!categoryDoc.subcategories.includes(subcategory)) {
@@ -39,7 +39,7 @@ const submitLoan = async (req, res) => {
 
     const appointment = new Appointment({
       loanId: loan._id,
-      date: new Date(Date.now() + 24 * 60 * 60 * 1000), // Next day
+      date: new Date(Date.now() + 24 * 60 * 60 * 1000),
       time: '10:00 AM',
       officeLocation: 'Saylani Office'
     });
@@ -62,14 +62,17 @@ const submitLoan = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+// submit loan
 
 
-
+// get loan detail
 const getLoanDetails = async (req, res) => {
   const loan = await Loan.findById(req.params.id).populate('userId', 'name email').populate('appointment');
   if (!loan) return res.status(404).json({ message: 'Loan not found' });
   res.json(loan);
 };
+// get loan detail
+
 
 export {submitLoan, getLoanDetails}
 
