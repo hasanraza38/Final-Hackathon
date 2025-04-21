@@ -78,14 +78,14 @@ const login = async (req, res) => {
 
   res.cookie('accessToken', accessToken, {
      httpOnly: true, 
-     secure: true, 
-     sameSite: "None"  
+     secure: false, 
+     sameSite: "secure",  
     });
   res.cookie('refreshToken', refreshToken, 
     { 
       httpOnly: true,
-      secure: true, 
-      sameSite: 'None'
+      secure: false, 
+      sameSite: 'secure'
      });
   // console.log('Cookies set:', { accessToken, refreshToken });
 
