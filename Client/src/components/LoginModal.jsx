@@ -1,50 +1,55 @@
 import { useState } from "react"
+import { useForm } from "react-hook-form"
+import axios from "axios"
 
 const LoginModal = ({ onClose, onLogin, onSwitchToSignup }) => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+  const [isLoading, setIsLoading] = useState(false)
+  const [apiError, setApiError] = useState(null)
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   })
-  const [errors, setErrors] = useState({})
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+  const onSubmit = async (data) => {
+    setIsLoading(true)
+    setApiError(null)
 
-    // Clear error when user types
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }))
-    }
-  }
+    try {
+      // Replace with your actual API endpoint
+      const response = await axios.post("https://your-api-endpoint.com/auth/login", data)
 
-  const validateForm = () => {
-    const newErrors = {}
+      // Assuming the API returns a token and user data
+      const { token, user } = response.data
 
-    if (!formData.email) {
-      newErrors.email = "Email is required"
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid"
-    }
+      // Store token in localStorage
+      localStorage.setItem("userToken", token)
 
-    if (!formData.password) {
-      newErrors.password = "Password is required"
-    }
+      // Call the onLogin function passed from parent component
+      onLogin(user)
+    } catch (error) {
+      console.error("Login error:", error)
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-
-    if (validateForm()) {
-      onLogin(formData)
+      // Handle different types of errors
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        setApiError(error.response.data.message || "Invalid credentials. Please try again.")
+      } else if (error.request) {
+        // The request was made but no response was received
+        setApiError("No response from server. Please try again later.")
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setApiError("An error occurred. Please try again.")
+      }
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -60,7 +65,11 @@ const LoginModal = ({ onClose, onLogin, onSwitchToSignup }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6">
+        {apiError && (
+          <div className="mx-6 mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md">{apiError}</div>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)} className="p-6">
           <div className="mb-4">
             <label htmlFor="email" className="block text-gray-700 text-sm font-medium mb-2">
               Email Address
@@ -68,15 +77,13 @@ const LoginModal = ({ onClose, onLogin, onSwitchToSignup }) => {
             <input
               type="email"
               id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 ${
+              {...register("email", { required: true })}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
                 errors.email ? "border-red-500" : "border-gray-300"
               }`}
               placeholder="your@email.com"
             />
-            {errors.email && <p className="mt-1 text-red-500 text-xs">{errors.email}</p>}
+            {errors.email && <p className="mt-1 text-red-500 text-xs">{errors.email.message}</p>}
           </div>
 
           <div className="mb-6">
@@ -86,39 +93,50 @@ const LoginModal = ({ onClose, onLogin, onSwitchToSignup }) => {
             <input
               type="password"
               id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 ${
+              {...register("password", {
+                required: "Password is required",
+                minLength: {
+                  value: 6,
+                  message: "Password must be at least 6 characters",
+                },
+              })}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
                 errors.password ? "border-red-500" : "border-gray-300"
               }`}
               placeholder="••••••••"
             />
-            {errors.password && <p className="mt-1 text-red-500 text-xs">{errors.password}</p>}
+            {errors.password && <p className="mt-1 text-red-500 text-xs">{errors.password.message}</p>}
           </div>
 
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center">
-              <input
-                id="remember"
-                type="checkbox"
-                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
-                Remember me
-              </label>
-            </div>
-
-            <a href="#" className="text-sm text-green-600 hover:text-green-800">
-              Forgot password?
-            </a>
-          </div>
+          
 
           <button
             type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            disabled={isLoading}
+            className={`w-full bg-[#8dc63f] hover:bg-[#8ec63fd9] text-white py-2 px-4 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${
+              isLoading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
-            Sign In
+            {isLoading ? (
+              <span className="flex items-center justify-center">
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Signing in...
+              </span>
+            ) : (
+              "Sign In"
+            )}
           </button>
 
           <div className="mt-6 text-center">
@@ -127,7 +145,7 @@ const LoginModal = ({ onClose, onLogin, onSwitchToSignup }) => {
               <button
                 type="button"
                 onClick={onSwitchToSignup}
-                className="text-green-600 hover:text-green-800 font-medium"
+                className="text-[#8dc63f] hover:text-[#8ec63fdc] font-medium"
               >
                 Sign up
               </button>

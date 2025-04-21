@@ -1,94 +1,13 @@
-// import React, { useState, useEffect } from 'react';
-// import api from '../services/api';
-
-// function LandingPage({ setShowRegister }) {
-//   const [categories, setCategories] = useState([]);
-//   const [category, setCategory] = useState('');
-//   const [subcategory, setSubcategory] = useState('');
-//   const [initialDeposit, setInitialDeposit] = useState(0);
-//   const [loanPeriod, setLoanPeriod] = useState(1);
-//   const [breakdown, setBreakdown] = useState(null);
-
-//   useEffect(() => {
-//     const fetchCategories = async () => {
-//       const { data } = await api.get('/categories');
-//       setCategories(data);
-//     };
-//     fetchCategories();
-//   }, []);
-
-//   const calculate = () => {
-//     const selectedCategory = categories.find(cat => cat.name === category);
-//     if (!selectedCategory) return;
-//     const maxLoan = selectedCategory.maxLoan;
-//     const loanAmount = maxLoan - initialDeposit;
-//     const monthlyPayment = loanAmount / (loanPeriod * 12);
-//     setBreakdown({ loanAmount, monthlyPayment });
-//   };
-
-//   return (
-//     <div className="p-4">
-//       <h1 className="text-3xl font-bold mb-4">Saylani Microfinance</h1>
-//       <div className="grid grid-cols-2 gap-4 mb-4">
-//         {categories.map(cat => (
-//           <div key={cat._id} className="border p-4">
-//             <h2 className="text-xl">{cat.name}</h2>
-//             <ul>{cat.subcategories.map(sub => <li key={sub}>{sub}</li>)}</ul>
-//           </div>
-//         ))}
-//       </div>
-//       <div className="border p-4">
-//         <h2 className="text-xl mb-2">Loan Calculator</h2>
-//         <select className="border p-2 mb-2" onChange={e => setCategory(e.target.value)}>
-//           <option value="">Select Category</option>
-//           {categories.map(cat => <option key={cat._id} value={cat.name}>{cat.name}</option>)}
-//         </select>
-//         {category && (
-//           <select className="border p-2 mb-2" onChange={e => setSubcategory(e.target.value)}>
-//             <option value="">Select Subcategory</option>
-//             {categories.find(cat => cat.name === category)?.subcategories.map(sub => (
-//               <option key={sub} value={sub}>{sub}</option>
-//             ))}
-//           </select>
-//         )}
-//         <input
-//           type="number"
-//           className="border p-2 mb-2"
-//           placeholder="Initial Deposit"
-//           onChange={e => setInitialDeposit(Number(e.target.value))}
-//         />
-//         <input
-//           type="number"
-//           className="border p-2 mb-2"
-//           placeholder="Loan Period (years)"
-//           onChange={e => setLoanPeriod(Number(e.target.value))}
-//         />
-//         <button className="bg-blue-500 text-white p-2" onClick={calculate}>Calculate</button>
-//         {breakdown && (
-//           <div>
-//             <p>Loan Amount: PKR {breakdown.loanAmount}</p>
-//             <p>Monthly Payment: PKR {breakdown.monthlyPayment.toFixed(2)}</p>
-//             <button className="bg-green-500 text-white p-2 mt-2" onClick={() => setShowRegister(true)}>Proceed</button>
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default LandingPage;
-
-"use client"
-
 import { useState, useEffect } from "react"
-import Navbar from "../components/Navbar"
-import LoanCard from "../components/LoanCard"
-import LoginModal from "../components/LoginModal"
-import SignupModal from "../components/SignupModal"
-import Footer from "../components/Footer"
+import Navbar from "../components/Navbar.jsx"
+import LoanCard from "../components/LoanCard.jsx"
+import LoginModal from "../components/LoginModal.jsx"
+import SignupModal from "../components/SignupModal.jsx"
+import Footer from "../components/Footer.jsx"
 
 const LoanPage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userData, setUserData] = useState(null)
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [showSignupModal, setShowSignupModal] = useState(false)
   const [loans, setLoans] = useState([])
@@ -100,11 +19,41 @@ const LoanPage = () => {
     const userToken = localStorage.getItem("userToken")
     if (userToken) {
       setIsLoggedIn(true)
+      // Fetch user data if token exists
+      fetchUserData(userToken)
     }
 
     // Fetch loans from API
     fetchLoans()
   }, [])
+
+  const fetchUserData = async (token) => {
+    try {
+      // Replace with your actual API endpoint
+      // const response = await fetch('https://api.example.com/user/profile', {
+      //   headers: {
+      //     'Authorization': `Bearer ${token}`
+      //   }
+      // })
+      // const data = await response.json()
+
+      // Mock user data for demonstration
+      const mockUserData = {
+        id: 1,
+        fullName: "John Doe",
+        email: "john@example.com",
+        phone: "+92 300 1234567",
+      }
+
+      setUserData(mockUserData)
+    } catch (error) {
+      console.error("Error fetching user data:", error)
+      // If token is invalid, log the user out
+      if (error.response && error.response.status === 401) {
+        handleLogout()
+      }
+    }
+  }
 
   const fetchLoans = async () => {
     setIsLoading(true)
@@ -149,6 +98,9 @@ const LoanPage = () => {
         },
       ]
 
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
       setLoans(mockLoans)
       setIsLoading(false)
     } catch (err) {
@@ -158,18 +110,18 @@ const LoanPage = () => {
     }
   }
 
-  const handleLogin = (userData) => {
-    // In a real app, you would validate credentials with your backend
-    console.log("Login data:", userData)
-    localStorage.setItem("userToken", "sample-token")
+  const handleLogin = (authData) => {
+    console.log("Login successful:", authData)
+    localStorage.setItem("userToken", authData.token)
+    setUserData(authData.user)
     setIsLoggedIn(true)
     setShowLoginModal(false)
   }
 
-  const handleSignup = (userData) => {
-    // In a real app, you would send registration data to your backend
-    console.log("Signup data:", userData)
-    localStorage.setItem("userToken", "sample-token")
+  const handleSignup = (authData) => {
+    console.log("Signup successful:", authData)
+    localStorage.setItem("userToken", authData.token)
+    setUserData(authData.user)
     setIsLoggedIn(true)
     setShowSignupModal(false)
   }
@@ -177,6 +129,7 @@ const LoanPage = () => {
   const handleLogout = () => {
     localStorage.removeItem("userToken")
     setIsLoggedIn(false)
+    setUserData(null)
   }
 
   const handleApplyClick = () => {
@@ -193,6 +146,7 @@ const LoanPage = () => {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar
         isLoggedIn={isLoggedIn}
+        userData={userData}
         onLoginClick={() => setShowLoginModal(true)}
         onSignupClick={() => setShowSignupModal(true)}
         onLogout={handleLogout}

@@ -8,9 +8,11 @@
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import Layout from './Layout'
-import Home from './pages/Home'
-import LoanPage from './pages/LoanPage'
+import Layout from './Layout.jsx'
+import Home from './pages/Home.jsx'
+import LoanPage from './pages/LoanPage.jsx'
+import ApplicationPage from './pages/Application.jsx'
+import DashboardPage from './pages/Dashboard.jsx'
 
 
 const router = createBrowserRouter([
@@ -26,7 +28,15 @@ const router = createBrowserRouter([
             {
                 path: '/loan-page',
                 element: <LoanPage/>
-            }
+            },
+            {
+                path: '/application',
+                element: <ApplicationPage/>
+            },
+            {
+                path: '/dashboard',
+                element: <DashboardPage/>
+            },
             // {
             //     path: 'about',
             //     element: <About/>

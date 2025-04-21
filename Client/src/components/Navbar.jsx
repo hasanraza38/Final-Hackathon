@@ -34,26 +34,6 @@ const Navbar = ({ isLoggedIn, onLoginClick, onSignupClick, onLogout }) => {
             </Link>
           </div>
 
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-center space-x-4">
-              <Link to="/" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                Home
-              </Link>
-              <Link to="/loans" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                Loans
-              </Link>
-              <Link to="/about" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                About
-              </Link>
-              <Link
-                to="/contact"
-                className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Contact
-              </Link>
-            </div>
-          </div>
-
           <div className="flex items-center">
             {isLoggedIn ? (
               <div className="relative" ref={dropdownRef}>

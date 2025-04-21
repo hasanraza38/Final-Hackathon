@@ -149,3 +149,255 @@
 // }
 
 // export default Dashboard;
+
+
+
+import { useState, useEffect } from "react"
+import Navbar from "../components/Navbar.jsx"
+import Footer from "../components/Footer.jsx"
+
+const DashboardPage = () => {
+  const [applications, setApplications] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState("applications")
+
+  useEffect(() => {
+    // Fetch user's loan applications
+    fetchApplications()
+  }, [])
+
+  const fetchApplications = async () => {
+    setIsLoading(true)
+    try {
+      // In a real app, you would fetch from your API
+      // const response = await fetch('https://api.example.com/my-applications', {
+      //   headers: {
+      //     'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+      //   }
+      // })
+      // const data = await response.json()
+
+      // Mock data for demonstration
+      const mockApplications = [
+        {
+          id: "APP123456",
+          loanType: "Business Loan",
+          amount: 50000,
+          duration: 12,
+          status: "Under Review",
+          submittedDate: "2023-04-15",
+          lastUpdated: "2023-04-16",
+        },
+        {
+          id: "APP789012",
+          loanType: "Education Loan",
+          amount: 75000,
+          duration: 24,
+          status: "Approved",
+          submittedDate: "2023-03-10",
+          lastUpdated: "2023-03-20",
+        },
+      ]
+
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
+      setApplications(mockApplications)
+      setIsLoading(false)
+    } catch (error) {
+      console.error("Error fetching applications:", error)
+      setIsLoading(false)
+    }
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("userToken")
+    window.location.href = "/loans"
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Navbar isLoggedIn={true} onLogout={handleLogout} />
+
+      <main className="flex-grow container mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="p-6 border-b">
+              <h1 className="text-2xl font-bold text-gray-900">My Dashboard</h1>
+            </div>
+
+            <div className="border-b">
+              <nav className="flex">
+                <button
+                  onClick={() => setActiveTab("applications")}
+                  className={`px-6 py-4 text-sm font-medium ${
+                    activeTab === "applications"
+                      ? "border-b-2 border-green-500 text-green-600"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  Loan Applications
+                </button>
+                <button
+                  onClick={() => setActiveTab("profile")}
+                  className={`px-6 py-4 text-sm font-medium ${
+                    activeTab === "profile"
+                      ? "border-b-2 border-green-500 text-green-600"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  My Profile
+                </button>
+                <button
+                  onClick={() => setActiveTab("documents")}
+                  className={`px-6 py-4 text-sm font-medium ${
+                    activeTab === "documents"
+                      ? "border-b-2 border-green-500 text-green-600"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  Documents
+                </button>
+              </nav>
+            </div>
+
+            <div className="p-6">
+              {activeTab === "applications" && (
+                <div>
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-lg font-semibold text-gray-900">My Loan Applications</h2>
+                    <a
+                      href="/application"
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                    >
+                      New Application
+                    </a>
+                  </div>
+
+                  {isLoading ? (
+                    <div className="flex justify-center items-center h-64">
+                      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+                    </div>
+                  ) : applications.length === 0 ? (
+                    <div className="text-center py-12 bg-gray-50 rounded-lg">
+                      <p className="text-gray-600 mb-4">You haven't submitted any loan applications yet.</p>
+                      <a
+                        href="/application"
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                      >
+                        Apply for a Loan
+                      </a>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Application ID
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Loan Type
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Amount
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Status
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Submitted
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Actions
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {applications.map((app) => (
+                            <tr key={app.id}>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {app.id}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.loanType}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                Rs. {app.amount.toLocaleString()}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span
+                                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                    app.status === "Approved"
+                                      ? "bg-green-100 text-green-800"
+                                      : app.status === "Rejected"
+                                        ? "bg-red-100 text-red-800"
+                                        : "bg-yellow-100 text-yellow-800"
+                                  }`}
+                                >
+                                  {app.status}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.submittedDate}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href={`/application/${app.id}`} className="text-green-600 hover:text-green-900">
+                                  View
+                                </a>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === "profile" && (
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 mb-6">My Profile</h2>
+                  <p className="text-gray-600 mb-4">Update your personal information and preferences.</p>
+
+                  <div className="bg-gray-50 p-6 rounded-lg">
+                    <p className="text-center text-gray-500">Profile settings will be available soon.</p>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "documents" && (
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 mb-6">My Documents</h2>
+                  <p className="text-gray-600 mb-4">Upload and manage your documents for loan applications.</p>
+
+                  <div className="bg-gray-50 p-6 rounded-lg">
+                    <p className="text-center text-gray-500">Document management will be available soon.</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  )
+}
+
+export default DashboardPage
