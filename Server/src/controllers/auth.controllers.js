@@ -76,8 +76,17 @@ const login = async (req, res) => {
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
 
-  res.cookie('accessToken', accessToken, { httpOnly: true, secure: true, sameSite: 'strict' });
-  res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict' });
+  res.cookie('accessToken', accessToken, {
+     httpOnly: true, 
+     secure: true, 
+     sameSite: "None"  
+    });
+  res.cookie('refreshToken', refreshToken, 
+    { 
+      httpOnly: true,
+      secure: true, 
+      sameSite: 'None'
+     });
   // console.log('Cookies set:', { accessToken, refreshToken });
 
   res.json({ message: 'Logged in', role: user.role });
