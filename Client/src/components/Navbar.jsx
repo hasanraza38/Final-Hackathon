@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react"
 import { Link } from "react-router-dom"
 import saylaniLogo from "../assets/saylani_logo.png"
 import api from "../services/api.js"
+import { isAdmin } from "../utils/auth.js"
 
 const Navbar = ({ isLoggedIn, onLoginClick, onSignupClick}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -60,9 +61,14 @@ const Navbar = ({ isLoggedIn, onLoginClick, onSignupClick}) => {
 
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                    <Link to="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      Dashboard
+                    {isAdmin() ? (
+                      <Link to="/admin-panel" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      Admin Panel
                     </Link>
+                    ) : (<Link to="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      Dashboard
+                    </Link>)}
+                    
                     <button
                       onClick={logout}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

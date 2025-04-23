@@ -152,13 +152,11 @@
 
 
 
-"use client"
-
 import { useState, useEffect } from "react"
 import Navbar from "../components/Navbar"
 import Footer from "../components/Footer"
 import api from "../services/api"
-import { isAuthenticated, getUserFromCookies } from "../utils/auth"
+import { isAuthenticated,  } from "../utils/auth"
 
 const DashboardPage = () => {
   const [applications, setApplications] = useState([])
@@ -172,14 +170,8 @@ const DashboardPage = () => {
     const authStatus = isAuthenticated()
     setIsLoggedIn(authStatus)
 
-    if (authStatus) {
-      // Get user data if authenticated
-      setUserData(getUserFromCookies())
-      // Fetch user's loan applications
-      fetchApplications()
-    } else {
-      // If not authenticated, the ProtectedRoute in main.jsx will handle redirection
-    }
+    
+    fetchApplications()
   }, [])
 
   const fetchApplications = async () => {

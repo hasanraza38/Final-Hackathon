@@ -1,22 +1,41 @@
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import Layout from './Layout.jsx'
 import Home from './pages/Home.jsx'
 import LoanPage from './pages/LoanPage.jsx'
 import ApplicationPage from './pages/Application.jsx'
 import DashboardPage from './pages/Dashboard.jsx'
-import { isAuthenticated } from './utils/auth.js'
-
+import {  isAdmin, isAuthenticated } from './utils/auth.js'
+import AdminPanel from './pages/AdminPanel.jsx'
 const ProtectedRoute = ({ children }) => {
-    const isAuth = isAuthenticated()
+  const isAuth = isAuthenticated()
 
-    if (!isAuth) {
-        return <Navigate to="/loans" replace />
-    }
+  if (!isAuth) {
+    return <Navigate to="/loan-page" replace />
+  }
 
-    return children
+  return children
 }
+
+// Admin route protection
+const AdminProtectedRoute = ({ children }) => {
+  const isAuth = isAuthenticated()
+
+  if (!isAuth) {
+    return <Navigate to="/loan-page" replace />
+  }
+
+  // Check if user is admin
+  const admin = isAdmin()
+
+  if (!admin) {
+    return <Navigate to="/dashboard" replace />
+  }
+
+  return children
+}
+
 
 const router = createBrowserRouter([
     {
@@ -45,10 +64,13 @@ const router = createBrowserRouter([
                     <DashboardPage />
                 </ProtectedRoute>
             },
-            // {
-            //     path: 'about',
-            //     element: <About/>
-            // },
+            {
+                path: '/admin-panel',
+                element:
+                <AdminProtectedRoute>
+                    <AdminPanel/>
+                </AdminProtectedRoute>
+            },
 
             // {
             //     path: '/contact',

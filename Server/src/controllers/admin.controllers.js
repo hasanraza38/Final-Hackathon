@@ -4,7 +4,7 @@ import loanCategory from '../models/loanCategory.models.js';
 import mongoose from 'mongoose';
 
 // Get all loan applications
-const getApplications = async (req, res) => {
+const getAllApplications = async (req, res) => {
   try {
     
     const { city, country } = req.query;
@@ -18,6 +18,30 @@ const getApplications = async (req, res) => {
     res.status(200).json(applications);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+
+const getSingleApplication = async (req, res) => {
+  try {
+    const application = await Loan.findById(req.params.id)
+      .populate('userId', 'name email cnic')
+      .populate('appointment', 'date time');
+
+    if (!application) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+
+    res.status(200).json({
+      message: 'Application retrieved successfully',
+      application
+    });
+  } catch (error) {
+    console.error('Get Single Application Error:', error);
+    if (error.kind === 'ObjectId') {
+      return res.status(400).json({ message: 'Invalid application ID' });
+    }
+    res.status(500).json({ error: 'Failed to retrieve application' });
   }
 };
 
@@ -145,7 +169,8 @@ const getCategories = async (req, res) => {
 };
 
 export {
-  getApplications,
+  getAllApplications,
+  getSingleApplication,
   approveLoanApplication,
   rejectLoanApplication,
   deleteCategory,

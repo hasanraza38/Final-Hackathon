@@ -1,6 +1,6 @@
 import express from 'express';
 import {
-  getApplications,
+  getAllApplications,
   approveLoanApplication,
   rejectLoanApplication,
   deleteCategory,
@@ -8,12 +8,14 @@ import {
   addCategory,
   getCategories,
   addSubcategory,
+  getSingleApplication,
 } from '../controllers/admin.controllers.js';
 import { authenticateToken, isAdmin } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
-router.get('/applications', authenticateToken, isAdmin, getApplications);
+router.get('/getAllApplications', authenticateToken, isAdmin, getAllApplications);
+router.get('/getSingleApplications/:id', authenticateToken, isAdmin, getSingleApplication);
 router.put('/applications/:id/approve', authenticateToken, isAdmin, approveLoanApplication);
 router.put('/applications/:id/reject', authenticateToken, isAdmin, rejectLoanApplication);
 router.get('/getcategories', getCategories); 

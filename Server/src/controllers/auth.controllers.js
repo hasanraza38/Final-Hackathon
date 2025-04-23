@@ -84,7 +84,7 @@ const login = async (req, res) => {
   res.cookie('accessToken', accessToken, {
     httpOnly: false,
     secure: false, 
-     sameSite: "lax",
+     sameSite: "Lax",
     });
   res.cookie('refreshToken', refreshToken, 
     { 
@@ -92,6 +92,12 @@ const login = async (req, res) => {
       secure: false, 
       sameSite: 'Lax',
      });
+
+     res.cookie('role', user.role, {
+      httpOnly: false, 
+      secure: false,
+      sameSite: 'Lax',
+    });
   // console.log('Cookies set:', { accessToken, refreshToken });
 
   res.json({ message: 'Logged in', role: user.role });
@@ -104,6 +110,7 @@ const logout = async (req, res) => {
   try {
     res.clearCookie('accessToken');
     res.clearCookie('refreshToken',);
+    res.clearCookie('role');
 
     res.json({ message: 'Logout successful' });
   } catch (error) {

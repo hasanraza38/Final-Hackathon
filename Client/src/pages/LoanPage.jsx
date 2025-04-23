@@ -5,7 +5,7 @@ import LoginModal from "../components/LoginModal"
 import SignupModal from "../components/SignupModal"
 import Footer from "../components/Footer"
 import api from "../services/api"
-import { isAuthenticated, getUserFromCookies } from "../utils/auth"
+import { isAuthenticated} from "../utils/auth"
 
 const LoanPage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -22,10 +22,6 @@ const LoanPage = () => {
     const authStatus = isAuthenticated()
     setIsLoggedIn(authStatus)
 
-    if (authStatus) {
-      // Get user data if authenticated
-      setUserData(getUserFromCookies())
-    }
 
     // Fetch loans from API
     fetchLoans()
