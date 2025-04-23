@@ -22,6 +22,19 @@ const submitLoan = async (req, res) => {
       return res.status(400).json({ message: `Loan period exceeds maximum of ${categoryDoc.period} years` });
     }
 
+    for (const guarantor of guarantors) {
+      const existingGuarantorCnic = await Guarantor.findOne({ cnic: guarantor.cnic });
+      if (existingGuarantorCnic) {
+        return res.status(400).json({ message: `Guarantor CNIC already registered` });
+      }
+
+      const existingGuarantorEmail = await Guarantor.findOne({ email: guarantor.email });
+      if (existingGuarantorEmail) {
+        return res.status(400).json({ message: `Guarantor email already registered` });
+      }
+    }
+
+
     const loan = new Loan({
       userId,
       category,
@@ -34,6 +47,11 @@ const submitLoan = async (req, res) => {
     });
     await loan.save();
 
+    // Generate token number
+    const tokenNumber = `TOKEN-${loan._id.toString().slice(-6)}`;
+    const qrCode = await generateQRCode(tokenNumber);
+
+
     const guarantorDocs = guarantors.map(g => ({ ...g, loanId: loan._id }));
     await Guarantor.insertMany(guarantorDocs);
 
@@ -41,21 +59,21 @@ const submitLoan = async (req, res) => {
       loanId: loan._id,
       date: new Date(Date.now() + 24 * 60 * 60 * 1000),
       time: '10:00 AM',
-      officeLocation: 'Saylani Office'
+      officeLocation: 'Saylani Head Office',
+      tokenNumber,
+      qrCode
     });
     await appointment.save();
 
     loan.appointment = appointment._id;
     await loan.save();
 
-    const tokenNumber = loan._id.toString();
-    const qrCode = await generateQRCode(tokenNumber);
 
     res.json({
       message: 'Loan submitted',
       loanId: loan._id,
+      appointment: { date: appointment.date, time: appointment.time, officeLocation: appointment.officeLocation, tokenNumber, qrCode }, 
       tokenNumber,
-      appointment: { date: appointment.date, time: appointment.time, officeLocation: appointment.officeLocation },
       qrCode
     });
   } catch (error) {

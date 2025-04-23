@@ -2,7 +2,7 @@ const LoanCard = ({ loan }) => {
   const { name = "Loan", maxLoan = 0, loanPeriod = 0, subcategories = [] } = loan || {}
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
       <div className="bg-[#8dc63f] py-3 px-4">
         <h3 className="text-xl font-semibold text-white capitalize">{name}</h3>
       </div>

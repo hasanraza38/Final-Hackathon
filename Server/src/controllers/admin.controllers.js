@@ -1,5 +1,4 @@
 import Loan from '../models/loan.models.js';
-import Subcategory from '../models/subCategory.models.js';
 import loanCategory from '../models/loanCategory.models.js';
 import mongoose from 'mongoose';
 
