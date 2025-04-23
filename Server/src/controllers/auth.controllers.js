@@ -12,8 +12,11 @@ const createAdmin = async (req, res) => {
   if (!cnic) return res.status(400).json({ message: "cnic number required" });
   if (!password) return res.status(400).json({ message: "password required" });
 
-  const admin = await User.findOne({ email });
-  if (admin) return res.status(401).json({ message: "user already exist" });
+  const existingemail = await User.findOne({ email });
+  if (existingemail) return res.status(401).json({ message: "admin already registered with email" });
+  const existingcnic = await User.findOne({ cnic });
+  if (existingcnic) return res.status(401).json({ message: "admin already registered with id card number" });
+  
 
   const user = new User({
     cnic,
@@ -43,8 +46,10 @@ const register = async (req, res) => {
   if (!cnic) return res.status(400).json({ message: "cnic number required" });
   if (!password) return res.status(400).json({ message: "password required" });
 
-  const user = await User.findOne({ email });
-  if (user) return res.status(401).json({ message: "user already exist" });
+  const existingemail = await User.findOne({ email });
+  if (existingemail) return res.status(401).json({ message: "admin already registered with email" });
+  const existingcnic = await User.findOne({ cnic });
+  if (existingcnic) return res.status(401).json({ message: "admin already registered with id card number" });
 
   const createUser = await User.create({
     cnic,
@@ -77,21 +82,36 @@ const login = async (req, res) => {
   const refreshToken = generateRefreshToken(user);
 
   res.cookie('accessToken', accessToken, {
-     httpOnly: true, 
-     secure: false, 
-     sameSite: "secure",  
+    httpOnly: false,
+    secure: false, 
+     sameSite: "lax",
     });
   res.cookie('refreshToken', refreshToken, 
     { 
-      httpOnly: true,
+      httpOnly: false,
       secure: false, 
-      sameSite: 'secure'
+      sameSite: 'Lax',
      });
   // console.log('Cookies set:', { accessToken, refreshToken });
 
   res.json({ message: 'Logged in', role: user.role });
 };
 //login user
+
+
+// logout
+const logout = async (req, res) => {
+  try {
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken',);
+
+    res.json({ message: 'Logout successful' });
+  } catch (error) {
+    console.error('Logout Error:', error);
+    res.status(400).json({ error: error.message });
+  }
+};
+// logout
 
 
 
@@ -102,9 +122,14 @@ const refreshToken = async (req, res) => {
   jwt.verify(refreshToken, process.env.REFRESH_JWT_SECRET, (err, user) => {
     if (err) return res.status(403).json({ message: 'Invalid refresh token' });
     const accessToken = generateAccessToken({ id: user.id, role: user.role });
-    res.cookie('accessToken', accessToken, { httpOnly: true, secure: true, sameSite: 'strict' });
+    res.cookie('accessToken', accessToken, 
+      {
+        httpOnly: false,
+        secure: false,
+        sameSite: 'lax'
+       });
     res.json({ message: 'Token refreshed' });
   });
 };
 
-export { register, login, refreshToken, createAdmin }
+export { register, login, refreshToken, createAdmin, logout };

@@ -1,10 +1,3 @@
-// import { createRoot } from 'react-dom/client'
-// import './index.css'
-// import App from './App.jsx'
-
-// createRoot(document.getElementById('root')).render(
-//     <App />
-// )
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
@@ -13,35 +6,50 @@ import Home from './pages/Home.jsx'
 import LoanPage from './pages/LoanPage.jsx'
 import ApplicationPage from './pages/Application.jsx'
 import DashboardPage from './pages/Dashboard.jsx'
+import { isAuthenticated } from './utils/auth.js'
 
+const ProtectedRoute = ({ children }) => {
+    const isAuth = isAuthenticated()
+
+    if (!isAuth) {
+        return <Navigate to="/loans" replace />
+    }
+
+    return children
+}
 
 const router = createBrowserRouter([
     {
         path: '',
-        element: <Layout/>,
+        element: <Layout />,
         errorElement: <h1>No screen found</h1>,
         children: [
             {
                 path: '',
-                element: <Home/>
+                element: <Home />
             },
             {
                 path: '/loan-page',
-                element: <LoanPage/>
+                element: <LoanPage />
             },
             {
                 path: '/application',
-                element: <ApplicationPage/>
+                element:
+                    <ProtectedRoute>
+                        <ApplicationPage />
+                    </ProtectedRoute>
             },
             {
                 path: '/dashboard',
-                element: <DashboardPage/>
+                element: <ProtectedRoute>
+                    <DashboardPage />
+                </ProtectedRoute>
             },
             // {
             //     path: 'about',
             //     element: <About/>
             // },
-          
+
             // {
             //     path: '/contact',
             //     element: <Contact/>
@@ -51,5 +59,5 @@ const router = createBrowserRouter([
 ])
 
 createRoot(document.getElementById('root')).render(
-    <RouterProvider router={router}/>
+    <RouterProvider router={router} />
 )

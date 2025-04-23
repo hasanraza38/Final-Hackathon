@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react"
 import { Link } from "react-router-dom"
 import saylaniLogo from "../assets/saylani_logo.png"
+import api from "../services/api.js"
 
-const Navbar = ({ isLoggedIn, onLoginClick, onSignupClick, onLogout }) => {
+const Navbar = ({ isLoggedIn, onLoginClick, onSignupClick}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef(null)
 
@@ -19,6 +20,11 @@ const Navbar = ({ isLoggedIn, onLoginClick, onSignupClick, onLogout }) => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [])
+
+  const logout = async () => {
+    await api.get("/auth/logout")
+    window.location.reload()
+  }
 
   return (
     <nav className="bg-white shadow-md">
@@ -57,11 +63,8 @@ const Navbar = ({ isLoggedIn, onLoginClick, onSignupClick, onLogout }) => {
                     <Link to="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       Dashboard
                     </Link>
-                    <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      Profile
-                    </Link>
                     <button
-                      onClick={onLogout}
+                      onClick={logout}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       Logout
@@ -79,7 +82,7 @@ const Navbar = ({ isLoggedIn, onLoginClick, onSignupClick, onLogout }) => {
                 </button>
                 <button
                   onClick={onSignupClick}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                  className="bg-[#8dc63f] hover:bg-[#8ec63fe7] text-white px-4 py-2 rounded-md text-sm font-medium"
                 >
                   Sign Up
                 </button>

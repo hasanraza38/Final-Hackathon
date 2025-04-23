@@ -152,29 +152,41 @@
 
 
 
+"use client"
+
 import { useState, useEffect } from "react"
-import Navbar from "../components/Navbar.jsx"
-import Footer from "../components/Footer.jsx"
+import Navbar from "../components/Navbar"
+import Footer from "../components/Footer"
+import api from "../services/api"
+import { isAuthenticated, getUserFromCookies } from "../utils/auth"
 
 const DashboardPage = () => {
   const [applications, setApplications] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("applications")
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userData, setUserData] = useState(null)
 
   useEffect(() => {
-    // Fetch user's loan applications
-    fetchApplications()
+    // Check authentication status
+    const authStatus = isAuthenticated()
+    setIsLoggedIn(authStatus)
+
+    if (authStatus) {
+      // Get user data if authenticated
+      setUserData(getUserFromCookies())
+      // Fetch user's loan applications
+      fetchApplications()
+    } else {
+      // If not authenticated, the ProtectedRoute in main.jsx will handle redirection
+    }
   }, [])
 
   const fetchApplications = async () => {
     setIsLoading(true)
     try {
       // In a real app, you would fetch from your API
-      // const response = await fetch('https://api.example.com/my-applications', {
-      //   headers: {
-      //     'Authorization': `Bearer ${localStorage.getItem('userToken')}`
-      //   }
-      // })
+      // const response = await api.get('loans/my-applications')
       // const data = await response.json()
 
       // Mock data for demonstration
@@ -210,14 +222,21 @@ const DashboardPage = () => {
     }
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem("userToken")
-    window.location.href = "/loans"
+  const handleLogout = async () => {
+    try {
+      // Call your logout endpoint to clear cookies
+      await api.post("auth/logout")
+
+      // Redirect to loans page after logout
+      window.location.href = "/loans"
+    } catch (error) {
+      console.error("Error during logout:", error)
+    }
   }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar isLoggedIn={true} onLogout={handleLogout} />
+      <Navbar isLoggedIn={isLoggedIn} userData={userData} onLogout={handleLogout} />
 
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">

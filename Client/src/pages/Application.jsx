@@ -1,289 +1,387 @@
-import { useState } from "react"
-import Navbar from "../components/Navbar.jsx"
-import Footer from "../components/Footer.jsx"
+import { useState, useEffect } from "react"
+import { useForm } from "react-hook-form"
+import Navbar from "../components/Navbar"
+import Footer from "../components/Footer"
+import api from "../services/api"
+import { isAuthenticated, getUserFromCookies } from "../utils/auth"
 
 const ApplicationPage = () => {
-  const [formData, setFormData] = useState({
-    loanType: "",
-    amount: "",
-    duration: "",
-    purpose: "",
-    income: "",
-    employment: "",
-    address: "",
-    city: "",
-    idNumber: "",
-  })
-  const [errors, setErrors] = useState({})
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userData, setUserData] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [submissionResult, setSubmissionResult] = useState(null)
+  const [apiError, setApiError] = useState(null)
+  const [guarantors, setGuarantors] = useState([
+    { name: "", cnic: "", email: "", phone: "" },
+    { name: "", cnic: "", email: "", phone: "" },
+  ])
+  const [loanCategories, setLoanCategories] = useState([])
+  const [selectedCategory, setSelectedCategory] = useState("")
+  const [subcategories, setSubcategories] = useState([])
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true)
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      category: "",
+      subcategory: "",
+      loanAmount: "",
+      initialDeposit: "",
+      loanPeriod: "",
+      city: "",
+      country: "Pakistan",
+    },
+  })
 
-    // Clear error when user types
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }))
-    }
-  }
+  // Watch the category to update subcategories
+  const watchedCategory = watch("category")
 
-  const validateForm = () => {
-    const newErrors = {}
+  useEffect(() => {
+    // Check authentication status when component mounts
+    const authStatus = isAuthenticated()
+    setIsLoggedIn(authStatus)
 
-    if (!formData.loanType) {
-      newErrors.loanType = "Please select a loan type"
-    }
-
-    if (!formData.amount) {
-      newErrors.amount = "Amount is required"
-    } else if (isNaN(formData.amount) || Number(formData.amount) <= 0) {
-      newErrors.amount = "Please enter a valid amount"
-    }
-
-    if (!formData.duration) {
-      newErrors.duration = "Duration is required"
-    }
-
-    if (!formData.purpose) {
-      newErrors.purpose = "Purpose is required"
-    }
-
-    if (!formData.income) {
-      newErrors.income = "Income is required"
-    }
-
-    if (!formData.employment) {
-      newErrors.employment = "Employment status is required"
+    if (authStatus) {
+      // Get user data if authenticated
+      setUserData(getUserFromCookies())
+    } else {
+      // Redirect to loans page if not authenticated
+      window.location.href = "/loans"
     }
 
-    if (!formData.address) {
-      newErrors.address = "Address is required"
-    }
+    // Fetch loan categories
+    fetchLoanCategories()
+  }, [])
 
-    if (!formData.city) {
-      newErrors.city = "City is required"
-    }
-
-    if (!formData.idNumber) {
-      newErrors.idNumber = "ID number is required"
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-
-    if (validateForm()) {
-      setIsSubmitting(true)
-
-      try {
-        // In a real app, you would send this data to your backend
-        // const response = await fetch('https://api.example.com/loan-applications', {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //     'Authorization': `Bearer ${localStorage.getItem('userToken')}`
-        //   },
-        //   body: JSON.stringify(formData)
-        // })
-
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1500))
-
-        setIsSubmitted(true)
-      } catch (error) {
-        console.error("Error submitting application:", error)
-      } finally {
-        setIsSubmitting(false)
+  useEffect(() => {
+    // Update subcategories when category changes
+    if (watchedCategory) {
+      const category = loanCategories.find((cat) => cat.name === watchedCategory)
+      if (category && category.subcategories) {
+        setSubcategories(category.subcategories)
+        // Reset subcategory selection
+        setValue("subcategory", "")
+      } else {
+        setSubcategories([])
       }
     }
+  }, [watchedCategory, loanCategories, setValue])
+
+  const fetchLoanCategories = async () => {
+    setIsLoadingCategories(true)
+    try {
+      const response = await api.get("/admin/getcategories")
+      if (response.data && Array.isArray(response.data)) {
+        setLoanCategories(response.data)
+      } else if (response.data && Array.isArray(response.data.data)) {
+        setLoanCategories(response.data.data)
+      } else {
+        console.error("Unexpected API response format:", response.data)
+        // Fallback to mock data
+        setLoanCategories([
+          {
+            id: 1,
+            name: "loan wedding",
+            maxLoan: 500000,
+            loanPeriod: 3,
+            subcategories: ["Valima", "Furniture", "Food"],
+          },
+          {
+            id: 2,
+            name: "education loan",
+            maxLoan: 300000,
+            loanPeriod: 6,
+            subcategories: ["Tuition", "Books", "Accommodation"],
+          },
+        ])
+      }
+    } catch (error) {
+      console.error("Error fetching loan categories:", error)
+      // Fallback to mock data
+      setLoanCategories([
+        {
+          id: 1,
+          name: "loan wedding",
+          maxLoan: 500000,
+          loanPeriod: 3,
+          subcategories: ["Valima", "Furniture", "Food"],
+        },
+        {
+          id: 2,
+          name: "education loan",
+          maxLoan: 300000,
+          loanPeriod: 6,
+          subcategories: ["Tuition", "Books", "Accommodation"],
+        },
+      ])
+    } finally {
+      setIsLoadingCategories(false)
+    }
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem("userToken")
-    window.location.href = "/loans"
+  const handleGuarantorChange = (index, field, value) => {
+    const updatedGuarantors = [...guarantors]
+    updatedGuarantors[index][field] = value
+    setGuarantors(updatedGuarantors)
+  }
+
+  const onSubmit = async (data) => {
+    setIsSubmitting(true)
+    setApiError(null)
+
+    try {
+      // Prepare the data in the format expected by the API
+      const applicationData = {
+        category: data.category,
+        subcategory: data.subcategory,
+        loanAmount: data.loanAmount,
+        initialDeposit: data.initialDeposit,
+        loanPeriod: data.loanPeriod,
+        guarantors: guarantors,
+        address: {
+          city: data.city,
+          country: data.country,
+        },
+      }
+
+      // Submit loan application to API
+      const response = await api.post("/loans", applicationData)
+
+      // Store the response data
+      setSubmissionResult(response.data)
+    } catch (error) {
+      console.error("Error submitting application:", error)
+
+      // Handle different types of errors
+      if (error.response) {
+        setApiError(error.response.data.message || "Failed to submit application. Please try again.")
+      } else if (error.request) {
+        setApiError("No response from server. Please try again later.")
+      } else {
+        setApiError("An error occurred. Please try again.")
+      }
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleLogout = async () => {
+    try {
+      // Call your logout endpoint to clear cookies
+      await api.post("auth/logout")
+
+      // Redirect to loans page after logout
+      window.location.href = "/loans"
+    } catch (error) {
+      console.error("Error during logout:", error)
+    }
+  }
+
+  const formatAppointmentDate = (dateString) => {
+    if (!dateString) return "N/A"
+    const date = new Date(dateString)
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
   }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar isLoggedIn={true} onLogout={handleLogout} />
+      <Navbar isLoggedIn={isLoggedIn} userData={userData} onLogout={handleLogout} />
 
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6 md:p-8">
-          {isSubmitted ? (
+          {submissionResult ? (
             <div className="text-center py-8">
               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
                 <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Application Submitted!</h2>
-              <p className="text-gray-600 mb-6">
-                Your loan application has been successfully submitted. Our team will review your application and contact
-                you within 2-3 business days.
-              </p>
-              <div className="flex justify-center">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">{submissionResult.message}</h2>
+
+              <div className="mt-6 bg-gray-50 p-6 rounded-lg text-left">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <p className="text-sm text-gray-500">Loan ID</p>
+                    <p className="font-medium">{submissionResult.loanId}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Token Number</p>
+                    <p className="font-medium">{submissionResult.tokenNumber}</p>
+                  </div>
+                </div>
+
+                <div className="border-t border-gray-200 pt-4 mb-6">
+                  <h3 className="text-lg font-semibold mb-3">Appointment Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-500">Date</p>
+                      <p className="font-medium">{formatAppointmentDate(submissionResult.appointment?.date)}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Time</p>
+                      <p className="font-medium">{submissionResult.appointment?.time || "N/A"}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Location</p>
+                      <p className="font-medium">{submissionResult.appointment?.officeLocation || "N/A"}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {submissionResult.qrCode && (
+                  <div className="border-t border-gray-200 pt-4 flex flex-col items-center">
+                    <h3 className="text-lg font-semibold mb-3">Appointment QR Code</h3>
+                    <p className="text-sm text-gray-500 mb-4">Please show this QR code when you visit our office</p>
+                    <img
+                      src={submissionResult.qrCode || "/placeholder.svg"}
+                      alt="Appointment QR Code"
+                      className="w-48 h-48 object-contain"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-8 flex flex-col md:flex-row justify-center gap-4">
                 <a
                   href="/dashboard"
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md text-sm font-medium"
+                  className="bg-[#8dc63f] hover:bg-[#8ec63fc4] text-white px-6 py-2 rounded-md text-sm font-medium"
                 >
                   Go to Dashboard
                 </a>
+                <button
+                  onClick={() => window.print()}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-2 rounded-md text-sm font-medium"
+                >
+                  Print Details
+                </button>
               </div>
             </div>
           ) : (
             <>
               <h1 className="text-2xl font-bold text-gray-900 mb-6">Loan Application Form</h1>
 
-              <form onSubmit={handleSubmit}>
+              {apiError && (
+                <div className="mb-6 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md">{apiError}</div>
+              )}
+
+              <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="col-span-2">
-                    <label htmlFor="loanType" className="block text-gray-700 text-sm font-medium mb-2">
-                      Loan Type *
+                    <label htmlFor="category" className="block text-gray-700 text-sm font-medium mb-2">
+                      Loan Category *
                     </label>
                     <select
-                      id="loanType"
-                      name="loanType"
-                      value={formData.loanType}
-                      onChange={handleChange}
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                        errors.loanType ? "border-red-500" : "border-gray-300"
+                      id="category"
+                      {...register("category", { required: "Please select a loan category" })}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
+                        errors.category ? "border-red-500" : "border-gray-300"
                       }`}
+                      disabled={isLoadingCategories}
                     >
-                      <option value="">Select a loan type</option>
-                      <option value="business">Business Loan</option>
-                      <option value="education">Education Loan</option>
-                      <option value="home">Home Improvement Loan</option>
-                      <option value="emergency">Emergency Loan</option>
+                      <option value="">Select a loan category</option>
+                      {loanCategories.map((category) => (
+                        <option key={category.id || category._id} value={category.name}>
+                          {category.name}
+                        </option>
+                      ))}
                     </select>
-                    {errors.loanType && <p className="mt-1 text-red-500 text-xs">{errors.loanType}</p>}
+                    {errors.category && <p className="mt-1 text-red-500 text-xs">{errors.category.message}</p>}
+                  </div>
+
+                  <div className="col-span-2">
+                    <label htmlFor="subcategory" className="block text-gray-700 text-sm font-medium mb-2">
+                      Subcategory *
+                    </label>
+                    <select
+                      id="subcategory"
+                      {...register("subcategory", { required: "Please select a subcategory" })}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
+                        errors.subcategory ? "border-red-500" : "border-gray-300"
+                      }`}
+                      disabled={!watchedCategory || subcategories.length === 0}
+                    >
+                      <option value="">Select a subcategory</option>
+                      {subcategories.map((subcategory, index) => (
+                        <option key={index} value={subcategory}>
+                          {subcategory}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.subcategory && <p className="mt-1 text-red-500 text-xs">{errors.subcategory.message}</p>}
                   </div>
 
                   <div>
-                    <label htmlFor="amount" className="block text-gray-700 text-sm font-medium mb-2">
+                    <label htmlFor="loanAmount" className="block text-gray-700 text-sm font-medium mb-2">
                       Loan Amount (Rs.) *
                     </label>
                     <input
                       type="number"
-                      id="amount"
-                      name="amount"
-                      value={formData.amount}
-                      onChange={handleChange}
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                        errors.amount ? "border-red-500" : "border-gray-300"
+                      id="loanAmount"
+                      {...register("loanAmount", {
+                        required: "Amount is required",
+                        min: { value: 1000, message: "Minimum amount is Rs. 1,000" },
+                        max: { value: 500000, message: "Maximum amount is Rs. 500,000" },
+                      })}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
+                        errors.loanAmount ? "border-red-500" : "border-gray-300"
                       }`}
                       placeholder="e.g. 50000"
                     />
-                    {errors.amount && <p className="mt-1 text-red-500 text-xs">{errors.amount}</p>}
+                    {errors.loanAmount && <p className="mt-1 text-red-500 text-xs">{errors.loanAmount.message}</p>}
                   </div>
 
                   <div>
-                    <label htmlFor="duration" className="block text-gray-700 text-sm font-medium mb-2">
-                      Loan Duration (Months) *
+                    <label htmlFor="initialDeposit" className="block text-gray-700 text-sm font-medium mb-2">
+                      Initial Deposit (Rs.) *
+                    </label>
+                    <input
+                      type="number"
+                      id="initialDeposit"
+                      {...register("initialDeposit", {
+                        required: "Initial deposit is required",
+                        min: { value: 0, message: "Minimum deposit is Rs. 0" },
+                      })}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
+                        errors.initialDeposit ? "border-red-500" : "border-gray-300"
+                      }`}
+                      placeholder="e.g. 5000"
+                    />
+                    {errors.initialDeposit && (
+                      <p className="mt-1 text-red-500 text-xs">{errors.initialDeposit.message}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label htmlFor="loanPeriod" className="block text-gray-700 text-sm font-medium mb-2">
+                      Loan Period (Months) *
                     </label>
                     <select
-                      id="duration"
-                      name="duration"
-                      value={formData.duration}
-                      onChange={handleChange}
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                        errors.duration ? "border-red-500" : "border-gray-300"
+                      id="loanPeriod"
+                      {...register("loanPeriod", { required: "Loan period is required" })}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
+                        errors.loanPeriod ? "border-red-500" : "border-gray-300"
                       }`}
                     >
-                      <option value="">Select duration</option>
+                      <option value="">Select period</option>
+                      <option value="1">1 month</option>
+                      <option value="2">2 months</option>
                       <option value="3">3 months</option>
                       <option value="6">6 months</option>
                       <option value="12">12 months</option>
                       <option value="24">24 months</option>
                       <option value="36">36 months</option>
                     </select>
-                    {errors.duration && <p className="mt-1 text-red-500 text-xs">{errors.duration}</p>}
-                  </div>
-
-                  <div className="col-span-2">
-                    <label htmlFor="purpose" className="block text-gray-700 text-sm font-medium mb-2">
-                      Purpose of Loan *
-                    </label>
-                    <textarea
-                      id="purpose"
-                      name="purpose"
-                      value={formData.purpose}
-                      onChange={handleChange}
-                      rows="3"
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                        errors.purpose ? "border-red-500" : "border-gray-300"
-                      }`}
-                      placeholder="Briefly describe why you need this loan"
-                    ></textarea>
-                    {errors.purpose && <p className="mt-1 text-red-500 text-xs">{errors.purpose}</p>}
-                  </div>
-
-                  <div>
-                    <label htmlFor="income" className="block text-gray-700 text-sm font-medium mb-2">
-                      Monthly Income (Rs.) *
-                    </label>
-                    <input
-                      type="number"
-                      id="income"
-                      name="income"
-                      value={formData.income}
-                      onChange={handleChange}
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                        errors.income ? "border-red-500" : "border-gray-300"
-                      }`}
-                      placeholder="e.g. 25000"
-                    />
-                    {errors.income && <p className="mt-1 text-red-500 text-xs">{errors.income}</p>}
-                  </div>
-
-                  <div>
-                    <label htmlFor="employment" className="block text-gray-700 text-sm font-medium mb-2">
-                      Employment Status *
-                    </label>
-                    <select
-                      id="employment"
-                      name="employment"
-                      value={formData.employment}
-                      onChange={handleChange}
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                        errors.employment ? "border-red-500" : "border-gray-300"
-                      }`}
-                    >
-                      <option value="">Select status</option>
-                      <option value="employed">Employed</option>
-                      <option value="self-employed">Self-employed</option>
-                      <option value="business-owner">Business Owner</option>
-                      <option value="unemployed">Unemployed</option>
-                      <option value="student">Student</option>
-                    </select>
-                    {errors.employment && <p className="mt-1 text-red-500 text-xs">{errors.employment}</p>}
-                  </div>
-
-                  <div className="col-span-2">
-                    <label htmlFor="address" className="block text-gray-700 text-sm font-medium mb-2">
-                      Residential Address *
-                    </label>
-                    <input
-                      type="text"
-                      id="address"
-                      name="address"
-                      value={formData.address}
-                      onChange={handleChange}
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                        errors.address ? "border-red-500" : "border-gray-300"
-                      }`}
-                      placeholder="Street address"
-                    />
-                    {errors.address && <p className="mt-1 text-red-500 text-xs">{errors.address}</p>}
+                    {errors.loanPeriod && <p className="mt-1 text-red-500 text-xs">{errors.loanPeriod.message}</p>}
                   </div>
 
                   <div>
@@ -293,33 +391,70 @@ const ApplicationPage = () => {
                     <input
                       type="text"
                       id="city"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleChange}
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                      {...register("city", { required: "City is required" })}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
                         errors.city ? "border-red-500" : "border-gray-300"
                       }`}
                       placeholder="e.g. Karachi"
                     />
-                    {errors.city && <p className="mt-1 text-red-500 text-xs">{errors.city}</p>}
+                    {errors.city && <p className="mt-1 text-red-500 text-xs">{errors.city.message}</p>}
                   </div>
 
-                  <div>
-                    <label htmlFor="idNumber" className="block text-gray-700 text-sm font-medium mb-2">
-                      CNIC Number *
-                    </label>
-                    <input
-                      type="text"
-                      id="idNumber"
-                      name="idNumber"
-                      value={formData.idNumber}
-                      onChange={handleChange}
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                        errors.idNumber ? "border-red-500" : "border-gray-300"
-                      }`}
-                      placeholder="e.g. 42201-1234567-8"
-                    />
-                    {errors.idNumber && <p className="mt-1 text-red-500 text-xs">{errors.idNumber}</p>}
+                  <div className="col-span-2">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Guarantor Information</h3>
+                    <p className="text-sm text-gray-500 mb-4">Please provide details of two guarantors</p>
+
+                    {guarantors.map((guarantor, index) => (
+                      <div key={index} className="mb-6 p-4 border border-gray-200 rounded-md">
+                        <h4 className="font-medium mb-3">Guarantor {index + 1}</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-gray-700 text-sm font-medium mb-2">Full Name *</label>
+                            <input
+                              type="text"
+                              value={guarantor.name}
+                              onChange={(e) => handleGuarantorChange(index, "name", e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f]"
+                              placeholder="e.g. John Doe"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-gray-700 text-sm font-medium mb-2">CNIC *</label>
+                            <input
+                              type="text"
+                              value={guarantor.cnic}
+                              onChange={(e) => handleGuarantorChange(index, "cnic", e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f]"
+                              placeholder="e.g. 4220112345678"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-gray-700 text-sm font-medium mb-2">Email *</label>
+                            <input
+                              type="email"
+                              value={guarantor.email}
+                              onChange={(e) => handleGuarantorChange(index, "email", e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f]"
+                              placeholder="e.g. john@example.com"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-gray-700 text-sm font-medium mb-2">Phone Number *</label>
+                            <input
+                              type="tel"
+                              value={guarantor.phone}
+                              onChange={(e) => handleGuarantorChange(index, "phone", e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f]"
+                              placeholder="e.g. 03001234567"
+                              required
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -327,7 +462,7 @@ const ApplicationPage = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className={`w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${
+                    className={`w-full bg-[#8dc63f] hover:bg-[#8ec63fc4] text-white py-3 px-4 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8dc63f] ${
                       isSubmitting ? "opacity-70 cursor-not-allowed" : ""
                     }`}
                   >

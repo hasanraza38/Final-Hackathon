@@ -16,7 +16,7 @@ const router = express.Router();
 router.get('/applications', authenticateToken, isAdmin, getApplications);
 router.put('/applications/:id/approve', authenticateToken, isAdmin, approveLoanApplication);
 router.put('/applications/:id/reject', authenticateToken, isAdmin, rejectLoanApplication);
-router.get('/getcategries', authenticateToken, getCategories); 
+router.get('/getcategories', getCategories); 
 router.post('/addcategory', authenticateToken, isAdmin, addCategory);
 router.post('/addsubcategory/:categoryId', authenticateToken, isAdmin, addSubcategory);
 router.put('/editcategory/:id', authenticateToken, isAdmin, editCategory);

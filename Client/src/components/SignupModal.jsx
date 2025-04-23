@@ -1,21 +1,21 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import api from '../services/api';
-
+import api from "../services/api"
 
 const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [apiError, setApiError] = useState(null)
+  const [signupSuccess, setSignupSuccess] = useState(false)
 
   const {
     register,
     handleSubmit,
     watch,
-    formState: { errors },
+    formState: { errors , },
   } = useForm({
     defaultValues: {
-      cnic:"",
-      fullName: "",
+      cnic: "",
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -26,23 +26,26 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
   const password = watch("password")
 
   const onSubmit = async (data) => {
-    
     setIsLoading(true)
     setApiError(null)
 
     try {
-      const {...signupData } = data
+      const { ...signupData } = data
+
+      // Remove confirmPassword as it's not needed for the API
+      delete signupData.confirmPassword
 
       const response = await api.post("auth/register", signupData)
-      // const response = await api.post('/auth/register', { cnic, email, fullName});
-      // await api.post('/auth/register', { cnic, email, name });
+      console.log(response.data)
 
-      // Assuming the API returns a token and user data
-      const { token, user } = response.data
+      // Set signup success
+      setSignupSuccess(true)
 
-
-      // Call the onSignup function passed from parent component
-      onSignup(user)
+      // Show success message for 1.5 seconds before redirecting to login
+      setTimeout(() => {
+        // Pass true to indicate successful signup when switching to login
+        onSwitchToLogin(true)
+      }, 1500)
     } catch (error) {
       console.error("Signup error:", error)
 
@@ -68,8 +71,8 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 my-8 overflow-y-auto max-h-[90vh]">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-2xl w-full max-w-md mx-4 border border-gray-200">
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-2xl font-semibold text-[#8dc63f]">Create Account</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
@@ -83,21 +86,33 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
           <div className="mx-6 mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md">{apiError}</div>
         )}
 
+        {signupSuccess && (
+          <div className="mx-6 mt-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-md">
+            Account created successfully! Redirecting to login...
+          </div>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="p-6">
           <div className="mb-4">
-            <label htmlFor="fullName" className="block text-gray-700 text-sm font-medium mb-2">
+            <label htmlFor="name" className="block text-gray-700 text-sm font-medium mb-2">
               Full Name
             </label>
             <input
               type="text"
-              id="fullName"
-              {...register("fullName", { required: true , minLength: 4})}
+              id="name"
+              {...register("name", {
+                required: "Full name is required",
+                minLength: {
+                  value: 4,
+                  message: "Name must be at least 4 characters",
+                },
+              })}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
-                errors.fullName ? "border-red-500" : "border-gray-300"
+                errors.name ? "border-red-500" : "border-gray-300"
               }`}
               placeholder="Your Name"
             />
-            {errors.fullName && <p className="mt-1 text-red-500 text-xs">{errors.fullName.message}</p>}
+            {errors.name && <p className="mt-1 text-red-500 text-xs">{errors.name.message}</p>}
           </div>
 
           <div className="mb-4">
@@ -107,7 +122,13 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
             <input
               type="email"
               id="email"
-              {...register("email", { required: true })}
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /\S+@\S+\.\S+/,
+                  message: "Please enter a valid email address",
+                },
+              })}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
                 errors.email ? "border-red-500" : "border-gray-300"
               }`}
@@ -117,18 +138,17 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
           </div>
 
           <div className="mb-4">
-            <label htmlFor="phone" className="block text-gray-700 text-sm font-medium mb-2">
+            <label htmlFor="cnic" className="block text-gray-700 text-sm font-medium mb-2">
               CNIC Number
             </label>
             <input
-              type="number"
+              type="text"
               id="cnic"
               {...register("cnic", {
                 required: "CNIC number is required",
                 pattern: {
-                  minLength: 13,
-                  maxLength: 13,
-                  message: "Please enter a valid phone number",
+                  value: /^\d{13}$/,
+                  message: "CNIC must be exactly 13 digits",
                 },
               })}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
@@ -166,7 +186,6 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
             {errors.password && <p className="mt-1 text-red-500 text-xs">{errors.password.message}</p>}
           </div>
 
-
           <div className="mb-6">
             <label htmlFor="confirmPassword" className="block text-gray-700 text-sm font-medium mb-2">
               Confirm Password
@@ -186,13 +205,11 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
             {errors.confirmPassword && <p className="mt-1 text-red-500 text-xs">{errors.confirmPassword.message}</p>}
           </div>
 
-      
-
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || signupSuccess}
             className={`w-full bg-[#8dc63f] hover:bg-[#8ec63fc4] text-white py-2 px-4 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${
-              isLoading ? "opacity-70 cursor-not-allowed" : ""
+              isLoading || signupSuccess ? "opacity-70 cursor-not-allowed" : ""
             }`}
           >
             {isLoading ? (
@@ -212,6 +229,8 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
                 </svg>
                 Creating account...
               </span>
+            ) : signupSuccess ? (
+              "Account Created!"
             ) : (
               "Create Account"
             )}
@@ -222,7 +241,7 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
               Already have an account?{" "}
               <button
                 type="button"
-                onClick={onSwitchToLogin}
+                onClick={() => onSwitchToLogin(false)}
                 className="text-[#8dc63f] hover:text-[#8ec63fd4] font-medium"
               >
                 Sign in
