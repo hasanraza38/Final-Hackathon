@@ -82,21 +82,21 @@ const login = async (req, res) => {
   const refreshToken = generateRefreshToken(user);
 
   res.cookie('accessToken', accessToken, {
-    httpOnly: false,
-    secure: false, 
-     sameSite: "Lax",
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
     });
   res.cookie('refreshToken', refreshToken, 
     { 
-      httpOnly: false,
-      secure: false, 
-      sameSite: 'Lax',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
      });
 
      res.cookie('role', user.role, {
-      httpOnly: false, 
-      secure: false,
-      sameSite: 'Lax',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
     });
   // console.log('Cookies set:', { accessToken, refreshToken });
 
@@ -131,9 +131,9 @@ const refreshToken = async (req, res) => {
     const accessToken = generateAccessToken({ id: user.id, role: user.role });
     res.cookie('accessToken', accessToken, 
       {
-        httpOnly: false,
-        secure: false,
-        sameSite: 'Lax',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
        });
     res.json({ message: 'Token refreshed' });
   });

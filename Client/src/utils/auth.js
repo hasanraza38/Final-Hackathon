@@ -1,3 +1,4 @@
+import api from "../services/api.js"
 
 const isAuthenticated = () => {
   const cookies = document.cookie.split(";").reduce((cookiesObj, cookie) => {
@@ -20,4 +21,15 @@ const isAdmin = () => {
 }
 
 
-export { isAuthenticated, isAdmin }
+
+const refreshAccessToken = async () => {
+  try {
+    const response = await api.post('/auth/refresh');
+    return response.data; 
+  } catch (error) {
+    console.error('Error refreshing token:', error.response?.data || error.message);
+    throw error; 
+  }
+};
+
+export { isAuthenticated, isAdmin, refreshAccessToken }
