@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
-import Navbar from "../components/Navbar"
-import Footer from "../components/Footer"
+import Navbar from "../components/Navbar.jsx"
+import Footer from "../components/Footer.jsx"
 import api from "../services/api.js"
-import { isAuthenticated,  } from "../utils/auth.js"
+import { isAuthenticated } from "../utils/auth.js"
 
 
 const ApplicationPage = () => {
-// states
+  // states
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submissionResult, setSubmissionResult] = useState(null)
@@ -20,9 +20,9 @@ const ApplicationPage = () => {
   const [loanCategories, setLoanCategories] = useState([])
   const [subcategories, setSubcategories] = useState([])
   const [isLoadingCategories, setIsLoadingCategories] = useState(true)
-// states
+  const [maxLoanPeriod, setMaxLoanPeriod] = useState(36)
+  // states
 
-  // Initialize React Hook Form
   const {
     register,
     handleSubmit,
@@ -37,7 +37,7 @@ const ApplicationPage = () => {
       initialDeposit: "",
       loanPeriod: "",
       city: "",
-      country: "Pakistan",
+      country: "Pakistan", 
     },
   })
 
@@ -49,7 +49,6 @@ const ApplicationPage = () => {
   useEffect(() => {
     const authStatus = isAuthenticated()
     setIsLoggedIn(authStatus)
-
     fetchLoanCategories()
   }, [])
 
@@ -58,12 +57,16 @@ const ApplicationPage = () => {
       const category = loanCategories.find((cat) => cat.name === watchedCategory)
       if (category && category.subcategories) {
         setSubcategories(category.subcategories)
+        setMaxLoanPeriod(category.loanPeriod || 36)
         setValue("subcategory", "")
+        if (watchedLoanPeriod > category.loanPeriod) {
+          setValue("loanPeriod", "")
+        }
       } else {
         setSubcategories([])
       }
     }
-  }, [watchedCategory, loanCategories, setValue])
+  }, [watchedCategory, loanCategories, setValue, watchedLoanPeriod])
 
   useEffect(() => {
     if (watchedLoanAmount && watchedInitialDeposit && watchedLoanPeriod) {
@@ -72,57 +75,56 @@ const ApplicationPage = () => {
     }
   }, [watchedLoanAmount, watchedInitialDeposit, watchedLoanPeriod])
 
-  // calculate installment amount
   const calculateInstallment = (loanAmount, initialDeposit, loanPeriod) => {
     if (!loanAmount || !loanPeriod) return 0
 
-    const installment = Number(loanAmount) - Number(initialDeposit)
-    return installment / Number(loanPeriod)
+    const amount = Number(loanAmount) - Number(initialDeposit)
+    return amount / Number(loanPeriod)
   }
-  // calculate installment amount
 
-
- 
+  
   const fetchLoanCategories = async () => {
     setIsLoadingCategories(true)
     try {
       const response = await api.get("/admin/getcategories")
-
-      if (response.data && Array.isArray(response.data)) {
-        setLoanCategories(response.data)
-        console.log("1",response.data);
-      } else if (response.data && Array.isArray(response.data.data)) {
-        // Some APIs nest data in a data property
-        setLoanCategories(response.data.data)
-        console.log("2",response.data);
-      } else {
-        console.error("Unexpected API response format:", response.data)
-        // Fallback to mock data if response format is unexpected
-      }
-      console.log(response.data);
-      
-    } 
-    catch (error) {
+      setLoanCategories(response.data)
+    } catch (error) {
       console.error("Error fetching loan categories:", error)
     } finally {
       setIsLoadingCategories(false)
     }
   }
 
+  
+  const generateLoanPeriodOptions = (maxPeriod) => {
+    const options = []
+    for (let i = 3; i <= Math.min(12, maxPeriod); i += 3) {
+      options.push(i)
+    }
+    if (maxPeriod > 12) {
+      for (let i = 18; i <= maxPeriod; i += 6) {
+        options.push(i)
+      }
+    }
+    if (maxPeriod > 0 && !options.includes(maxPeriod)) {
+      options.push(maxPeriod)
+    }
 
+    return options.sort((a, b) => a - b)
+  }
+
+  
   const handleGuarantorChange = (index, field, value, isAddress = false) => {
     const updatedGuarantors = [...guarantors]
 
     if (isAddress) {
       updatedGuarantors[index].address[field] = value
-    } else {
+    } else    {
       updatedGuarantors[index][field] = value
     }
-
     setGuarantors(updatedGuarantors)
   }
 
- 
   const onSubmit = async (data) => {
     setIsSubmitting(true)
     setApiError(null)
@@ -141,9 +143,8 @@ const ApplicationPage = () => {
         },
       }
 
-      const response = await api.post("/loans", applicationData)
+      const response = await api.post("/loanapplication", applicationData)
       setSubmissionResult(response.data)
-
     } catch (error) {
       console.error("Error submitting application:", error)
 
@@ -159,7 +160,6 @@ const ApplicationPage = () => {
     }
   }
 
-  
 
 
   const formatAppointmentDate = (dateString) => {
@@ -175,14 +175,12 @@ const ApplicationPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar isLoggedIn={isLoggedIn}  />
+      <Navbar isLoggedIn={isLoggedIn} />
 
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6 md:p-8">
-          {/* Success view - shown after successful submission */}
           {submissionResult ? (
             <div className="text-center py-8">
-              {/* Success icon */}
               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
                 <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
@@ -192,16 +190,10 @@ const ApplicationPage = () => {
 
               {/* Application details section */}
               <div className="mt-6 bg-gray-50 p-6 rounded-lg text-left">
-                {/* Loan ID and Token Number */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div>
-                    <p className="text-sm text-gray-500">Loan ID</p>
-                    <p className="font-medium">{submissionResult.loanId}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Token Number</p>
-                    <p className="font-medium">{submissionResult.tokenNumber}</p>
-                  </div>
+                {/* Token Number */}
+                <div className="mb-6">
+                  <p className="text-sm text-gray-500">Token Number</p>
+                  <p className="font-medium">{submissionResult.tokenNumber}</p>
                 </div>
 
                 {/* Appointment details section */}
@@ -222,8 +214,7 @@ const ApplicationPage = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* QR Code section */}
+                {/* qr Code  */}
                 {submissionResult.qrCode && (
                   <div className="border-t border-gray-200 pt-4 flex flex-col items-center">
                     <h3 className="text-lg font-semibold mb-3">Appointment QR Code</h3>
@@ -237,7 +228,6 @@ const ApplicationPage = () => {
                 )}
               </div>
 
-              {/* Action buttons */}
               <div className="mt-8 flex flex-col md:flex-row justify-center gap-4">
                 <a
                   href="/dashboard"
@@ -254,7 +244,6 @@ const ApplicationPage = () => {
               </div>
             </div>
           ) : (
-            /* Application form - shown before submission */
             <>
               <h1 className="text-2xl font-bold text-gray-900 mb-6">Loan Application Form</h1>
 
@@ -265,6 +254,7 @@ const ApplicationPage = () => {
 
               <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
                   {/* Loan Category selection */}
                   <div className="col-span-2">
                     <label htmlFor="category" className="block text-gray-700 text-sm font-medium mb-2">
@@ -311,7 +301,7 @@ const ApplicationPage = () => {
                     {errors.subcategory && <p className="mt-1 text-red-500 text-xs">{errors.subcategory.message}</p>}
                   </div>
 
-                  {/* Loan Amount input */}
+                  {/* Loan Amount  */}
                   <div>
                     <label htmlFor="loanAmount" className="block text-gray-700 text-sm font-medium mb-2">
                       Loan Amount (Rs.) *
@@ -327,12 +317,12 @@ const ApplicationPage = () => {
                       className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
                         errors.loanAmount ? "border-red-500" : "border-gray-300"
                       }`}
-                      placeholder="e.g. 50000"
+                      placeholder="Loan amount"
                     />
                     {errors.loanAmount && <p className="mt-1 text-red-500 text-xs">{errors.loanAmount.message}</p>}
                   </div>
 
-                  {/* Initial Deposit input */}
+                  {/* Initial Deposit  */}
                   <div>
                     <label htmlFor="initialDeposit" className="block text-gray-700 text-sm font-medium mb-2">
                       Initial Deposit (Rs.) *
@@ -347,14 +337,14 @@ const ApplicationPage = () => {
                       className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
                         errors.initialDeposit ? "border-red-500" : "border-gray-300"
                       }`}
-                      placeholder="e.g. 5000"
+                      placeholder="Initial Deposit"
                     />
                     {errors.initialDeposit && (
                       <p className="mt-1 text-red-500 text-xs">{errors.initialDeposit.message}</p>
                     )}
                   </div>
 
-                  {/* Loan Period selection */}
+                  {/* Loan Period  */}
                   <div>
                     <label htmlFor="loanPeriod" className="block text-gray-700 text-sm font-medium mb-2">
                       Loan Period (Months) *
@@ -367,18 +357,16 @@ const ApplicationPage = () => {
                       }`}
                     >
                       <option value="">Select period</option>
-                      <option value="1">1 month</option>
-                      <option value="2">2 months</option>
-                      <option value="3">3 months</option>
-                      <option value="6">6 months</option>
-                      <option value="12">12 months</option>
-                      <option value="24">24 months</option>
-                      <option value="36">36 months</option>
+                      {generateLoanPeriodOptions(maxLoanPeriod).map((period) => (
+                        <option key={period} value={period}>
+                          {period} {period === 1 ? "month" : "months"}
+                        </option>
+                      ))}
                     </select>
                     {errors.loanPeriod && <p className="mt-1 text-red-500 text-xs">{errors.loanPeriod.message}</p>}
                   </div>
 
-                  {/* City input - dropdown with specific cities */}
+                  {/* City  dropdown */}
                   <div>
                     <label htmlFor="city" className="block text-gray-700 text-sm font-medium mb-2">
                       City *
@@ -399,7 +387,6 @@ const ApplicationPage = () => {
                     {errors.city && <p className="mt-1 text-red-500 text-xs">{errors.city.message}</p>}
                   </div>
 
-                  {/* Country input - disabled and set to Pakistan */}
                   <div>
                     <label htmlFor="country" className="block text-gray-700 text-sm font-medium mb-2">
                       Country
@@ -457,12 +444,12 @@ const ApplicationPage = () => {
                     <h3 className="text-lg font-medium text-gray-900 mb-4">Guarantor Information</h3>
                     <p className="text-sm text-gray-500 mb-4">Please provide details of two guarantors</p>
 
-                    {/* Map through guarantors array to create input fields for each */}
                     {guarantors.map((guarantor, index) => (
                       <div key={index} className="mb-6 p-4 border border-gray-200 rounded-md">
                         <h4 className="font-medium mb-3">Guarantor {index + 1}</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Guarantor Name */}
+
+                          {/*  name */}
                           <div>
                             <label className="block text-gray-700 text-sm font-medium mb-2">Full Name *</label>
                             <input
@@ -470,11 +457,13 @@ const ApplicationPage = () => {
                               value={guarantor.name}
                               onChange={(e) => handleGuarantorChange(index, "name", e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f]"
-                              placeholder="e.g. John Doe"
+                              placeholder="Name"
                               required
                             />
                           </div>
-                          {/* Guarantor CNIC */}
+                          {/*  name */}
+
+                          {/*  CNIC */}
                           <div>
                             <label className="block text-gray-700 text-sm font-medium mb-2">CNIC *</label>
                             <input
@@ -482,11 +471,13 @@ const ApplicationPage = () => {
                               value={guarantor.cnic}
                               onChange={(e) => handleGuarantorChange(index, "cnic", e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f]"
-                              placeholder="e.g. 4220112345678"
+                              placeholder="4220123456789"
                               required
                             />
                           </div>
-                          {/* Guarantor Email */}
+                            {/*  CNIC */}
+
+                                    {/*  Email */}
                           <div>
                             <label className="block text-gray-700 text-sm font-medium mb-2">Email *</label>
                             <input
@@ -494,11 +485,13 @@ const ApplicationPage = () => {
                               value={guarantor.email}
                               onChange={(e) => handleGuarantorChange(index, "email", e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f]"
-                              placeholder="e.g. john@example.com"
+                              placeholder="Email"
                               required
                             />
                           </div>
-                          {/* Guarantor Phone */}
+                            {/*  Email */}
+                          
+                          {/*  Phone */}
                           <div>
                             <label className="block text-gray-700 text-sm font-medium mb-2">Phone Number *</label>
                             <input
@@ -506,11 +499,15 @@ const ApplicationPage = () => {
                               value={guarantor.phone}
                               onChange={(e) => handleGuarantorChange(index, "phone", e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f]"
-                              placeholder="e.g. 03001234567"
+                              placeholder="03001234567"
                               required
-                            />
+                              />
                           </div>
-                          {/* Guarantor City */}
+                                 {/*  Phone */}
+   
+                          {/*  city */}
+   
+   
                           <div>
                             <label className="block text-gray-700 text-sm font-medium mb-2">City *</label>
                             <select
@@ -526,8 +523,8 @@ const ApplicationPage = () => {
                               <option value="Hyderabad">Hyderabad</option>
                             </select>
                           </div>
-                          {/* Guarantor Country - disabled and set to Pakistan */}
-                          <div>
+                               {/*  city */}
+                <div>
                             <label className="block text-gray-700 text-sm font-medium mb-2">Country</label>
                             <input
                               type="text"
@@ -542,7 +539,7 @@ const ApplicationPage = () => {
                   </div>
                 </div>
 
-                {/* Submit button */}
+                {/* submit  */}
                 <div className="mt-8">
                   <button
                     type="submit"
@@ -558,7 +555,7 @@ const ApplicationPage = () => {
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
                           viewBox="0 0 24 24"
-                        >
+                          >
                           <circle
                             className="opacity-25"
                             cx="12"
@@ -566,12 +563,12 @@ const ApplicationPage = () => {
                             r="10"
                             stroke="currentColor"
                             strokeWidth="4"
-                          ></circle>
+                            ></circle>
                           <path
                             className="opacity-75"
                             fill="currentColor"
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
+                            ></path>
                         </svg>
                         Processing...
                       </span>
@@ -580,6 +577,10 @@ const ApplicationPage = () => {
                     )}
                   </button>
                 </div>
+                {/* submit  */}
+
+
+
               </form>
             </>
           )}

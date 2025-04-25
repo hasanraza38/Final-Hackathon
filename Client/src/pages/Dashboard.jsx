@@ -1,234 +1,289 @@
-// import React, { useState, useEffect } from 'react';
-// import api from '../services/api';
+// import { useState, useEffect } from "react"
+// import Navbar from "../components/Navbar.jsx"
+// import Footer from "../components/Footer.jsx"
+// import AppointmentModal from "../components/AppointmentModal.jsx"
+// import api from "../services/api.js"
+// import { isAuthenticated,  } from "../utils/auth.js"
 
-// function Dashboard() {
-//   const [categories, setCategories] = useState([]);
-//   const [formData, setFormData] = useState({
-//     category: '',
-//     subcategory: '',
-//     loanAmount: '',
-//     initialDeposit: '',
-//     loanPeriod: '',
-//     guarantors: [{ name: '', email: '', location: '', cnic: '' }, { name: '', email: '', location: '', cnic: '' }],
-//     address: { city: '', country: '' }
-//   });
-//   const [slip, setSlip] = useState(null);
+// const DashboardPage = () => {
+//   const [appointments, setAppointments] = useState([])
+//   const [isLoading, setIsLoading] = useState(true)
+//   const [isLoadingAppointments, setIsLoadingAppointments] = useState(true)
+//   const [activeTab, setActiveTab] = useState("appointments")
+//   const [isLoggedIn, setIsLoggedIn] = useState(false)
+//   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null)
+//   const [showAppointmentModal, setShowAppointmentModal] = useState(false)
 
 //   useEffect(() => {
-//     const fetchCategories = async () => {
-//       const { data } = await api.get('/categories');
-//       setCategories(data);
-//     };
-//     fetchCategories();
-//   }, []);
+//     const authStatus = isAuthenticated()
+//     setIsLoggedIn(authStatus)
 
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
+//     if (authStatus) {
+//       // fetchApplications()
+//       fetchAppointments()
+//     } 
+//   }, [])
+
+  
+
+//   const fetchAppointments = async () => {
+//     setIsLoadingAppointments(true)
 //     try {
-//       const { data } = await api.post('/loans', formData);
-//       setSlip(data);
+//       const response = await api.get("/appointment/allappointments")
+//       console.log(response.data.appointments);
+//       setAppointments(response.data.appointments)
+
 //     } catch (error) {
-//       alert(error.response?.data?.message || 'Error submitting loan');
+//       console.error("Error fetching appointments:", error)
+//     } finally {
+//       setIsLoadingAppointments(false)
 //     }
-//   };
+//   }
+
+
+
+//   const handleViewAppointment = (appointmentId) => {
+//     setSelectedAppointmentId(appointmentId)
+//     setShowAppointmentModal(true)
+//   }
+
+//   const formatDate = (dateString) => {
+//     if (!dateString) return "N/A"
+//     const date = new Date(dateString)
+//     return date.toLocaleDateString()
+//   }
+
+ 
 
 //   return (
-//     <div className="p-4">
-//       <h1 className="text-2xl mb-4">Loan Application</h1>
-//       {!slip ? (
-//         <form onSubmit={handleSubmit}>
-//           <select
-//             className="border p-2 mb-2"
-//             value={formData.category}
-//             onChange={e => setFormData({ ...formData, category: e.target.value, subcategory: '' })}
-//           >
-//             <option value="">Select Category</option>
-//             {categories.map(cat => <option key={cat._id} value={cat.name}>{cat.name}</option>)}
-//           </select>
-//           {formData.category && (
-//             <select
-//               className="border p-2 mb-2"
-//               value={formData.subcategory}
-//               onChange={e => setFormData({ ...formData, subcategory: e.target.value })}
-//             >
-//               <option value="">Select Subcategory</option>
-//               {categories.find(cat => cat.name === formData.category)?.subcategories.map(sub => (
-//                 <option key={sub} value={sub}>{sub}</option>
-//               ))}
-//             </select>
-//           )}
-//           <input
-//             className="border p-2 mb-2"
-//             type="number"
-//             placeholder="Loan Amount"
-//             value={formData.loanAmount}
-//             onChange={e => setFormData({ ...formData, loanAmount: Number(e.target.value) })}
-//           />
-//           <input
-//             className="border p-2 mb-2"
-//             type="number"
-//             placeholder="Initial Deposit"
-//             value={formData.initialDeposit}
-//             onChange={e => setFormData({ ...formData, initialDeposit: Number(e.target.value) })}
-//           />
-//           <input
-//             className="border p-2 mb-2"
-//             type="number"
-//             placeholder="Loan Period (years)"
-//             value={formData.loanPeriod}
-//             onChange={e => setFormData({ ...formData, loanPeriod: Number(e.target.value) })}
-//           />
-//           {formData.guarantors.map((g, i) => (
-//             <div key={i} className="border p-2 mb-2">
-//               <input
-//                 className="border p-2 mb-2"
-//                 placeholder="Guarantor Name"
-//                 value={g.name}
-//                 onChange={e => {
-//                   const guarantors = [...formData.guarantors];
-//                   guarantors[i].name = e.target.value;
-//                   setFormData({ ...formData, guarantors });
-//                 }}
-//               />
-//               <input
-//                 className="border p-2 mb-2"
-//                 placeholder="Guarantor Email"
-//                 value={g.email}
-//                 onChange={e => {
-//                   const guarantors = [...formData.guarantors];
-//                   guarantors[i].email = e.target.value;
-//                   setFormData({ ...formData, guarantors });
-//                 }}
-//               />
-//               <input
-//                 className="border p-2 mb-2"
-//                 placeholder="Guarantor Location"
-//                 value={g.location}
-//                 onChange={e => {
-//                   const guarantors = [...formData.guarantors];
-//                   guarantors[i].location = e.target.value;
-//                   setFormData({ ...formData, guarantors });
-//                 }}
-//               />
-//               <input
-//                 className="border p-2 mb-2"
-//                 placeholder="Guarantor CNIC"
-//                 value={g.cnic}
-//                 onChange={e => {
-//                   const guarantors = [...formData.guarantors];
-//                   guarantors[i].cnic = e.target.value;
-//                   setFormData({ ...formData, guarantors });
-//                 }}
-//               />
+//     <div className="min-h-screen flex flex-col bg-gray-50">
+//       <Navbar isLoggedIn={isLoggedIn} />
+
+//       <main className="flex-grow container mx-auto px-4 py-8">
+//         <div className="max-w-6xl mx-auto">
+//           <div className="bg-white rounded-lg shadow-md overflow-hidden">
+//             <div className="p-6 border-b">
+//               <h1 className="text-2xl font-bold text-gray-900">My Dashboard</h1>
 //             </div>
-//           ))}
-//           <input
-//             className="border p-2 mb-2"
-//             placeholder="City"
-//             value={formData.address.city}
-//             onChange={e => setFormData({ ...formData, address: { ...formData.address, city: e.target.value } })}
-//           />
-//           <input
-//             className="border p-2 mb-2"
-//             placeholder="Country"
-//             value={formData.address.country}
-//             onChange={e => setFormData({ ...formData, address: { ...formData.address, country: e.target.value } })}
-//           />
-//           <button className="bg-blue-500 text-white p-2">Submit</button>
-//         </form>
-//       ) : (
-//         <div className="border p-4">
-//           <h2 className="text-xl">Loan Slip</h2>
-//           <p>Token Number: {slip.tokenNumber}</p>
-//           <p>Appointment: {new Date(slip.appointment.date).toLocaleDateString()} at {slip.appointment.time}, {slip.appointment.officeLocation}</p>
-//           <img src={slip.qrCode} alt="QR Code" />
+
+//             <div className="border-b">
+//               <nav className="flex">
+                
+//                 <button
+//                   onClick={() => setActiveTab("appointments")}
+//                   className={`px-6 py-4 text-sm font-medium ${
+//                     activeTab === "appointments"
+//                       ? "border-b-2 border-green-500 text-green-600"
+//                       : "text-gray-500 hover:text-gray-700"
+//                   }`}
+//                 >
+//                   Appointments
+//                 </button>
+                
+//               </nav>
+//             </div>
+
+//             <div className="p-6">
+//               {activeTab === "appointments" && (
+//                 <div>
+//                   <div className="flex justify-between items-center mb-6">
+//                     <h2 className="text-lg font-semibold text-gray-900">My Appointments</h2>
+//                     <button
+//                       onClick={() => fetchAppointments()}
+//                       className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-md text-sm font-medium"
+//                     >
+//                       Refresh
+//                     </button>
+//                   </div>
+
+//                   {isLoadingAppointments ? (
+//                     <div className="flex justify-center items-center h-64">
+//                       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+//                     </div>
+//                   ) : appointments.length === 0 ? (
+//                     <div className="text-center py-12 bg-gray-50 rounded-lg">
+//                       <p className="text-gray-600 mb-4">You don't have any appointments yet.</p>
+//                       <a
+//                         href="/application"
+//                         className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+//                       >
+//                         Apply for a Loan
+//                       </a>
+//                     </div>
+//                   ) : (
+//                     <div className="overflow-x-auto">
+//                       <table className="min-w-full divide-y divide-gray-200">
+//                         <thead className="bg-gray-50">
+//                           <tr>
+//                             <th
+//                               scope="col"
+//                               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+//                             >
+//                               Token Number
+//                             </th>
+//                             <th
+//                               scope="col"
+//                               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+//                             >
+//                               Date & Time
+//                             </th>
+//                             <th
+//                               scope="col"
+//                               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+//                             >
+//                               Location
+//                             </th>
+//                             <th
+//                               scope="col"
+//                               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+//                             >
+//                               Status
+//                             </th>
+//                             <th
+//                               scope="col"
+//                               className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+//                             >
+//                               Actions
+//                             </th>
+//                           </tr>
+//                         </thead>
+//                         <tbody className="bg-white divide-y divide-gray-200">
+//                           {appointments.map((appointment) => (
+//                             <tr key={appointment._id} className="hover:bg-gray-50">
+//                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+//                                 {appointment.tokenNumber}
+//                               </td>
+//                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+//                                 <div>{formatDate(appointment.date)}</div>
+//                                 <div className="text-xs">{appointment.time}</div>
+//                               </td>
+//                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+//                                 {appointment.officeLocation}
+//                               </td>
+//                               <td className="px-6 py-4 whitespace-nowrap">
+//                                 <span
+//                                   className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+//                                     appointment.status === "completed"
+//                                       ? "bg-green-100 text-green-800"
+//                                       : appointment.status === "cancelled"
+//                                         ? "bg-red-100 text-red-800"
+//                                         : "bg-yellow-100 text-yellow-800"
+//                                   }`}
+//                                 >
+//                                   {appointment.status || "Pending"}
+//                                 </span>
+//                               </td>
+//                               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+//                                 <button
+//                                   onClick={() => handleViewAppointment(appointment._id)}
+//                                   className="text-green-600 hover:text-green-900"
+//                                 >
+//                                   View Details
+//                                 </button>
+//                               </td>
+//                             </tr>
+//                           ))}
+//                         </tbody>
+//                       </table>
+//                     </div>
+//                   )}
+//                 </div>
+//               )}
+
+//             </div>
+//           </div>
 //         </div>
+//       </main>
+
+//       {showAppointmentModal && selectedAppointmentId && (
+//         <AppointmentModal
+//           appointmentId={selectedAppointmentId}
+//           onClose={() => {
+//             setShowAppointmentModal(false)
+//             setSelectedAppointmentId(null)
+//           }}
+//         />
 //       )}
+
+//       <Footer />
 //     </div>
-//   );
+//   )
 // }
 
-// export default Dashboard;
+// export default DashboardPage
 
 
 
-import { useState, useEffect } from "react"
-import Navbar from "../components/Navbar"
-import Footer from "../components/Footer"
-import api from "../services/api"
-import { isAuthenticated,  } from "../utils/auth"
 
-const DashboardPage = () => {
-  const [applications, setApplications] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState("applications")
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [userData, setUserData] = useState(null)
 
+
+
+import { useState, useEffect } from "react";
+import Navbar from "../components/Navbar.jsx";
+import Footer from "../components/Footer.jsx";
+import AppointmentModal from "../components/AppointmentModal.jsx";
+import api from "../services/api.js";
+import { isAuthenticated } from "../utils/auth.js";
+
+const Dashboard = () => {
+  const [activeTab] = useState("appointments");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+  const [isLoadingAppointments, setIsLoadingAppointments] = useState(false)
+  const [appointments, setAppointments] = useState([])
+
+  
+
+
+  // Check authentication status on component mount
   useEffect(() => {
-    // Check authentication status
-    const authStatus = isAuthenticated()
-    setIsLoggedIn(authStatus)
+    const authStatus = isAuthenticated();
+    setIsLoggedIn(authStatus);
+    if (authStatus) {
+            fetchAppointments()
+          } 
+  }, []);
 
-    
-    fetchApplications()
-  }, [])
+  
+  // Fetch appointments data
+  const fetchAppointments = async () => {
+        setIsLoadingAppointments(true)
+        try {
+          const response = await api.get("/appointment/allappointments")
+          // const data = Array.isArray(response.data) ? response.data : [];
+          setAppointments(response.data.appointments)
+          console.log(response.data);
+          
+        } catch (error) {
+          console.error("Error fetching appointments:", error)
+        } finally {
+          setIsLoadingAppointments(false)
+        }
+      }
 
-  const fetchApplications = async () => {
-    setIsLoading(true)
-    try {
-      // In a real app, you would fetch from your API
-      // const response = await api.get('loans/my-applications')
-      // const data = await response.json()
+  
 
-      // Mock data for demonstration
-      const mockApplications = [
-        {
-          id: "APP123456",
-          loanType: "Business Loan",
-          amount: 50000,
-          duration: 12,
-          status: "Under Review",
-          submittedDate: "2023-04-15",
-          lastUpdated: "2023-04-16",
-        },
-        {
-          id: "APP789012",
-          loanType: "Education Loan",
-          amount: 75000,
-          duration: 24,
-          status: "Approved",
-          submittedDate: "2023-03-10",
-          lastUpdated: "2023-03-20",
-        },
-      ]
+  const handleViewAppointment = (appointmentId) => {
+    setSelectedAppointmentId(appointmentId);
+    setShowAppointmentModal(true);
+  };
 
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+  const handleCloseModal = () => {
+    setShowAppointmentModal(false);
+    setSelectedAppointmentId(null);
+  };
 
-      setApplications(mockApplications)
-      setIsLoading(false)
-    } catch (error) {
-      console.error("Error fetching applications:", error)
-      setIsLoading(false)
-    }
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A"
+    const date = new Date(dateString)
+    return date.toLocaleDateString()
   }
-
-  const handleLogout = async () => {
-    try {
-      // Call your logout endpoint to clear cookies
-      await api.post("auth/logout")
-
-      // Redirect to loans page after logout
-      window.location.href = "/loans"
-    } catch (error) {
-      console.error("Error during logout:", error)
-    }
-  }
+ 
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar isLoggedIn={isLoggedIn} userData={userData} onLogout={handleLogout} />
+      <Navbar isLoggedIn={isLoggedIn}  />
 
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
@@ -237,178 +292,172 @@ const DashboardPage = () => {
               <h1 className="text-2xl font-bold text-gray-900">My Dashboard</h1>
             </div>
 
-            <div className="border-b">
-              <nav className="flex">
-                <button
-                  onClick={() => setActiveTab("applications")}
-                  className={`px-6 py-4 text-sm font-medium ${
-                    activeTab === "applications"
-                      ? "border-b-2 border-green-500 text-green-600"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
-                >
-                  Loan Applications
-                </button>
-                <button
-                  onClick={() => setActiveTab("profile")}
-                  className={`px-6 py-4 text-sm font-medium ${
-                    activeTab === "profile"
-                      ? "border-b-2 border-green-500 text-green-600"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
-                >
-                  My Profile
-                </button>
-                <button
-                  onClick={() => setActiveTab("documents")}
-                  className={`px-6 py-4 text-sm font-medium ${
-                    activeTab === "documents"
-                      ? "border-b-2 border-green-500 text-green-600"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
-                >
-                  Documents
-                </button>
-              </nav>
-            </div>
-
             <div className="p-6">
-              {activeTab === "applications" && (
-                <div>
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-lg font-semibold text-gray-900">My Loan Applications</h2>
+              {/* Show only appointments content */}
+              <div>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-lg font-semibold text-gray-900">My Appointments</h2>
+                  <button
+                    onClick={() => fetchAppointments()}
+                    className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-[#8dc63f] hover:bg-[#7ab52e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8dc63f]"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Refresh
+                  </button>
+                </div>
+
+                {isLoadingAppointments ? (
+                  <div className="flex justify-center items-center h-64">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#8dc63f]"></div>
+                  </div>
+                ) : appointments.length === 0 ? (
+                  <div className="text-center py-12 bg-gray-50 rounded-lg">
+                    <p className="text-gray-600 mb-4">You don't have any scheduled appointments.</p>
                     <a
-                      href="/application"
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                      href="/book-appointment"
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#8dc63f] hover:bg-[#7ab52e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8dc63f]"
                     >
-                      New Application
+                      Book an Appointment
                     </a>
                   </div>
-
-                  {isLoading ? (
-                    <div className="flex justify-center items-center h-64">
-                      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
-                    </div>
-                  ) : applications.length === 0 ? (
-                    <div className="text-center py-12 bg-gray-50 rounded-lg">
-                      <p className="text-gray-600 mb-4">You haven't submitted any loan applications yet.</p>
-                      <a
-                        href="/application"
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                      >
-                        Apply for a Loan
-                      </a>
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
+                ) : (
+                  <>
+                    {/* Desktop view (table) */}
+                    <div className="hidden md:block overflow-x-auto">
                       <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                           <tr>
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
-                              Application ID
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Token Number
                             </th>
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
-                              Loan Type
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Loan Category
                             </th>
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
-                              Amount
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Date
                             </th>
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Time
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Location
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Status
                             </th>
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
-                              Submitted
-                            </th>
-                            <th
-                              scope="col"
-                              className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            >
+                            <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Actions
                             </th>
                           </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                          {applications.map((app) => (
-                            <tr key={app.id}>
+                          {appointments.map((appointment) => (
+                            <tr key={appointment._id} className="hover:bg-gray-50">
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {app.id}
+                                {appointment.tokenNumber}
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.loanType}</td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                Rs. {app.amount.toLocaleString()}
+                                {appointment.loanId?.category || "N/A"}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {formatDate(appointment.date)}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {appointment.time}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {appointment.officeLocation}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <span
-                                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                    app.status === "Approved"
+                                   className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                    appointment.loanId.status === "approved"
                                       ? "bg-green-100 text-green-800"
-                                      : app.status === "Rejected"
+                                      : appointment.loanId.status === "rejected"
                                         ? "bg-red-100 text-red-800"
                                         : "bg-yellow-100 text-yellow-800"
                                   }`}
                                 >
-                                  {app.status}
+                                  {appointment.loanId.status}
                                 </span>
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.submittedDate}</td>
                               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href={`/application/${app.id}`} className="text-green-600 hover:text-green-900">
-                                  View
-                                </a>
+                                <button
+                                  onClick={() => handleViewAppointment(appointment._id)}
+                                  className="text-[#8dc63f] hover:text-[#7ab52e]"
+                                >
+                                  View Details
+                                </button>
                               </td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
                     </div>
-                  )}
-                </div>
-              )}
 
-              {activeTab === "profile" && (
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900 mb-6">My Profile</h2>
-                  <p className="text-gray-600 mb-4">Update your personal information and preferences.</p>
-
-                  <div className="bg-gray-50 p-6 rounded-lg">
-                    <p className="text-center text-gray-500">Profile settings will be available soon.</p>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === "documents" && (
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900 mb-6">My Documents</h2>
-                  <p className="text-gray-600 mb-4">Upload and manage your documents for loan applications.</p>
-
-                  <div className="bg-gray-50 p-6 rounded-lg">
-                    <p className="text-center text-gray-500">Document management will be available soon.</p>
-                  </div>
-                </div>
-              )}
+                    {/* Mobile view (cards) */}
+                    <div className="md:hidden space-y-4">
+                      {appointments.map((appointment) => (
+                        <div key={appointment._id} className="bg-white shadow rounded-lg overflow-hidden border border-gray-200">
+                          <div className="p-4 border-b">
+                            <div className="flex justify-between items-center">
+                              <h3 className="text-lg font-medium text-gray-900">{appointment.tokenNumber}</h3>
+                              <span
+                                className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full `}
+                              >
+                                {appointment.status}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="p-4 space-y-3">
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-500">Loan Category:</span>
+                              <span className="text-sm font-medium text-gray-900">{appointment.loanId?.category || "N/A"}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-500">Date:</span>
+                              <span className="text-sm font-medium text-gray-900">{formatDate(appointment.date)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-500">Time:</span>
+                              <span className="text-sm font-medium text-gray-900">{appointment.time}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-gray-500">Location:</span>
+                              <span className="text-sm font-medium text-gray-900">{appointment.officeLocation}</span>
+                            </div>
+                          </div>
+                          <div className="bg-gray-50 px-4 py-3 border-t text-right">
+                            <button
+                              onClick={() => handleViewAppointment(appointment._id)}
+                              className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-[#8dc63f] bg-[#8dc63f]/10 hover:bg-[#8dc63f]/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8dc63f]"
+                            >
+                              View Details
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </main>
 
       <Footer />
-    </div>
-  )
-}
 
-export default DashboardPage
+      {showAppointmentModal && selectedAppointmentId && (
+        <AppointmentModal
+          appointmentId={selectedAppointmentId}
+          onClose={handleCloseModal}
+        />
+      )}
+    </div>
+  );
+};
+
+export default Dashboard;

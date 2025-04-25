@@ -1,4 +1,4 @@
-import Loan from '../models/loan.models.js';
+import LoanApplication from '../models/loanApplication.models.js';
 import loanCategory from '../models/loanCategory.models.js';
 import mongoose from 'mongoose';
 
@@ -11,7 +11,7 @@ const getAllApplications = async (req, res) => {
     if (city) query['address.city'] = city;
     if (country) query['address.country'] = country;
 
-    const applications = await Loan.find(query)
+    const applications = await LoanApplication.find(query)
       .populate('userId', 'name email')
       .populate('appointment');
     res.status(200).json(applications);
@@ -23,7 +23,7 @@ const getAllApplications = async (req, res) => {
 
 const getSingleApplication = async (req, res) => {
   try {
-    const application = await Loan.findById(req.params.id)
+    const application = await LoanApplication.findById(req.params.id)
       .populate('userId', 'name email cnic')
       .populate('appointment', 'date time');
 
@@ -47,7 +47,7 @@ const getSingleApplication = async (req, res) => {
 // Approve loan application
 const approveLoanApplication = async (req, res) => {
   try {
-    const application = await Loan.findByIdAndUpdate(
+    const application = await LoanApplication.findByIdAndUpdate(
       req.params.id,
       { status: 'approved', tokenNumber: req.body.tokenNumber || `TOKEN-${req.params.id.slice(-6)}` },
       { new: true }
@@ -62,7 +62,7 @@ const approveLoanApplication = async (req, res) => {
 // Reject loan application
 const rejectLoanApplication = async (req, res) => {
   try {
-    const application = await Loan.findByIdAndUpdate(
+    const application = await LoanApplication.findByIdAndUpdate(
       req.params.id,
       { status: 'rejected' },
       { new: true }

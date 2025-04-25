@@ -2,10 +2,9 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import authRoutes from './src/routes/auth.routes.js';
-import loanRoutes from './src/routes/loan.routes.js';
+import loanApplicationRoutes from './src/routes/loanApplication.routes.js';
 import adminRoutes from './src/routes/admin.routes.js';
 import appointmentRoutes from './src/routes/appointment.routes.js';
-import guarantorRoutes from './src/routes/guarantor.routes.js';
 import dotenv from "dotenv";
 import connectDB from './src/db/index.js';
 dotenv.config();
@@ -19,10 +18,9 @@ app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 
 // routes
 app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/loans', loanRoutes);
+app.use('/api/v1/loanapplication', loanApplicationRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/appointment', appointmentRoutes);
-app.use('/api/v1/guarantors',guarantorRoutes );
 // routes
 
 app.get("/", (req, res) => {

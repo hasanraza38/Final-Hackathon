@@ -1,7 +1,18 @@
+
 const LoanApplicationModal = ({ application, onClose, onApprove, onReject }) => {
-  // Format currency for display
   const formatCurrency = (amount) => {
     return `Rs. ${Number(amount).toLocaleString()}`
+  }
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A"
+    const date = new Date(dateString)
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
   }
 
   // Check if application is in pending state
@@ -117,9 +128,51 @@ const LoanApplicationModal = ({ application, onClose, onApprove, onReject }) => 
                       <p className="text-sm text-gray-500">Phone</p>
                       <p className="font-medium">{guarantor.phone || "N/A"}</p>
                     </div>
+                    {guarantor.address && (
+                      <div>
+                        <p className="text-sm text-gray-500">Location</p>
+                        <p className="font-medium">
+                          {guarantor.address.city || "N/A"}, {guarantor.address.country || "N/A"}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Appointment Details - if available */}
+          {application.appointment && (
+            <div className="mb-6 bg-gray-50 p-4 rounded-lg">
+              <h3 className="text-md font-medium text-gray-900 mb-3">Appointment Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Token Number</p>
+                  <p className="font-medium">{application.appointment.tokenNumber || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Date</p>
+                  <p className="font-medium">
+                    {application.appointment.date
+                      ? new Date(application.appointment.date).toLocaleDateString("en-US", {
+                          weekday: "long",
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })
+                      : "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Time</p>
+                  <p className="font-medium">{application.appointment.time || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Office Location</p>
+                  <p className="font-medium">{application.appointment.officeLocation || "N/A"}</p>
+                </div>
+              </div>
             </div>
           )}
 
