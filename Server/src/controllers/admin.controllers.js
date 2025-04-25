@@ -19,8 +19,10 @@ const getAllApplications = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+// Get all loan applications
 
 
+// Get single loan applications
 const getSingleApplication = async (req, res) => {
   try {
     const application = await LoanApplication.findById(req.params.id)
@@ -43,6 +45,8 @@ const getSingleApplication = async (req, res) => {
     res.status(500).json({ error: 'Failed to retrieve application' });
   }
 };
+// Get single loan applications
+
 
 // Approve loan application
 const approveLoanApplication = async (req, res) => {
@@ -58,6 +62,8 @@ const approveLoanApplication = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+// Approve loan application
+
 
 // Reject loan application
 const rejectLoanApplication = async (req, res) => {
@@ -73,6 +79,8 @@ const rejectLoanApplication = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+// Reject loan application
+
 
 
 // add loan category
@@ -91,9 +99,10 @@ const addCategory = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+// add loan category
+
 
 // Add subcategory 
-
 const addSubcategory = async (req, res) => {
   try {
     const { categoryId } = req.params; 
@@ -129,6 +138,8 @@ const addSubcategory = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+// Add subcategory 
+
 
 // Edit category
 const editCategory = async (req, res) => {
@@ -145,6 +156,8 @@ const editCategory = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+// Edit category
+
 
 // Delete category
 const deleteCategory = async (req, res) => {
@@ -156,6 +169,8 @@ const deleteCategory = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+// Delete category
+
 
 // Get all categories
 const getCategories = async (req, res) => {
@@ -166,6 +181,8 @@ const getCategories = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+// Get all categories
+
 
 export {
   getAllApplications,

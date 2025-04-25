@@ -10,29 +10,21 @@ import {  isAdmin, isAuthenticated } from './utils/auth.js'
 import AdminPanel from './pages/AdminPanel.jsx'
 const ProtectedRoute = ({ children }) => {
   const isAuth = isAuthenticated()
-
   if (!isAuth) {
     return <Navigate to="/loan-page" replace />
   }
-
   return children
 }
 
-// Admin route protection
 const AdminProtectedRoute = ({ children }) => {
   const isAuth = isAuthenticated()
-
   if (!isAuth) {
     return <Navigate to="/loan-page" replace />
   }
-
-  // Check if user is admin
-  const admin = isAdmin()
-
+const admin = isAdmin()
   if (!admin) {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to="/admin-panel" replace />
   }
-
   return children
 }
 
@@ -71,11 +63,6 @@ const router = createBrowserRouter([
                     <AdminPanel/>
                 </AdminProtectedRoute>
             },
-
-            // {
-            //     path: '/contact',
-            //     element: <Contact/>
-            // }
         ]
     }
 ])

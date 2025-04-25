@@ -22,7 +22,6 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
     },
   })
 
-  // Watch password for confirmation validation
   const password = watch("password")
 
   const onSubmit = async (data) => {
@@ -32,37 +31,26 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
     try {
       const { ...signupData } = data
 
-      // Remove confirmPassword as it's not needed for the API
-      delete signupData.confirmPassword
-
       const response = await api.post("auth/register", signupData)
-      console.log(response.data)
-
-      // Set signup success
+      // console.log(response.data)
+      
+      onSignup(response.data)
       setSignupSuccess(true)
 
-      // Show success message for 1.5 seconds before redirecting to login
       setTimeout(() => {
-        // Pass true to indicate successful signup when switching to login
         onSwitchToLogin(true)
       }, 1500)
     } catch (error) {
       console.error("Signup error:", error)
-
-      // Handle different types of errors
       if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
         if (error.response.status === 409) {
           setApiError("This email is already registered. Please use a different email or login.")
         } else {
           setApiError(error.response.data.message || "Registration failed. Please try again.")
         }
       } else if (error.request) {
-        // The request was made but no response was received
         setApiError("No response from server. Please try again later.")
       } else {
-        // Something happened in setting up the request that triggered an Error
         setApiError("An error occurred. Please try again.")
       }
     } finally {
@@ -122,13 +110,7 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
             <input
               type="email"
               id="email"
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /\S+@\S+\.\S+/,
-                  message: "Please enter a valid email address",
-                },
-              })}
+              {...register("email", { required: true })}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
                 errors.email ? "border-red-500" : "border-gray-300"
               }`}
@@ -142,15 +124,9 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
               CNIC Number
             </label>
             <input
-              type="text"
+              type="number"
               id="cnic"
-              {...register("cnic", {
-                required: "CNIC number is required",
-                pattern: {
-                  value: /^\d{13}$/,
-                  message: "CNIC must be exactly 13 digits",
-                },
-              })}
+              {...register("cnic", { required: true })}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
                 errors.cnic ? "border-red-500" : "border-gray-300"
               }`}

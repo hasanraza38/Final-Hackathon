@@ -3,11 +3,9 @@ import Footer from '../components/Footer.jsx'
 import { useNavigate } from 'react-router-dom'
 import saylni_logo from '../assets/saylani_logo.png'
 
-
 const Home = () => {
-
   const navigate = useNavigate()
-
+  
 const navigateToLoanPage = () => navigate('/loan-page')
   return (
     <>

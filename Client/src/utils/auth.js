@@ -15,7 +15,7 @@ const isAdmin = () => {
     cookiesObj[name] = value
     return cookiesObj
   }, {})
-
+  
   return cookies["role"] === "admin"
 }
 

@@ -18,12 +18,11 @@ const LoginModal = ({ onClose, onLogin, onSwitchToSignup, fromSignup = false }) 
     },
   })
 
-  // Clear signup success message after 15 seconds
   useEffect(() => {
     if (signupSuccess) {
       const timer = setTimeout(() => {
         setSignupSuccess(false)
-      }, 15000) // 15 seconds
+      }, 15000) 
 
       return () => clearTimeout(timer)
     }
@@ -45,16 +44,11 @@ const LoginModal = ({ onClose, onLogin, onSwitchToSignup, fromSignup = false }) 
     } catch (error) {
       console.error("Login error:", error)
 
-      // Handle different types of errors
       if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
         setApiError(error.response.data.message || "Invalid credentials. Please try again.")
       } else if (error.request) {
-        // The request was made but no response was received
         setApiError("No response from server. Please try again later.")
       } else {
-        // Something happened in setting up the request that triggered an Error
         setApiError("An error occurred. Please try again.")
       }
     } finally {

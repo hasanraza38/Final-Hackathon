@@ -4,18 +4,8 @@ const LoanApplicationModal = ({ application, onClose, onApprove, onReject }) => 
     return `Rs. ${Number(amount).toLocaleString()}`
   }
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A"
-    const date = new Date(dateString)
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
-  }
 
-  // Check if application is in pending state
+
   const isPending = application.status === "pending"
 
   return (

@@ -3,11 +3,10 @@ import AppointmentModels from "../models/appointment.models.js";
 // Get All Appointments
 const getAllAppointments = async (req, res) => {
   try {
-    const userId = req.user.id; // From protect middleware
+    const userId = req.user.id; 
     const { loanId } = req.query;
 
-    // Build query
-    let query = { userId }; // Always filter by userId
+    let query = { userId }; 
     if (loanId) {
       if (!mongoose.isValidObjectId(loanId)) {
         return res.status(400).json({ message: 'Invalid loan ID format' });
@@ -15,14 +14,13 @@ const getAllAppointments = async (req, res) => {
       query.loanId = loanId;
     }
 
-    // Find appointments
     const appointments = await AppointmentModels.find(query)
       .populate({
         path: 'loanId',
         select: 'category subcategory loanAmount initialDeposit loanPeriod address status guarantors',
         populate: {
           path: 'userId',
-          select: 'name email cnic' // Optional: Include user details
+          select: 'name email cnic' 
         }
       })
       .sort({ date: 1 });
@@ -44,6 +42,8 @@ const getAllAppointments = async (req, res) => {
     res.status(500).json({ error: 'Failed to retrieve appointments' });
   }
 };
+// Get All Appointments
+
 
 
   // Get Single Appointment
@@ -78,5 +78,7 @@ const getSingleAppointment = async (req, res) => {
     res.status(500).json({ error: 'Failed to retrieve appointment' });
   }
 };
+  // Get Single Appointment
+
 
   export { getAllAppointments, getSingleAppointment };
