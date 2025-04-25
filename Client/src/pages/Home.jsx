@@ -5,7 +5,6 @@ import saylni_logo from '../assets/saylani_logo.png'
 
 const Home = () => {
   const navigate = useNavigate()
-console.log(import.meta.env.NAME);
   
 const navigateToLoanPage = () => navigate('/loan-page')
   return (
