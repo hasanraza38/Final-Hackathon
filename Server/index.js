@@ -13,9 +13,7 @@ const app = express();
 const port = process.env.PORT;
 
 const allowedOrigins = [
-  'https://saylani-microfinance0.vercel.app', 
-  'http://localhost:5173'
-];
+  'https://saylani-microfinance0.vercel.app'];
 
 app.use(express.json());
 app.use(cookieParser());

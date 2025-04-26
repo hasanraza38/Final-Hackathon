@@ -82,19 +82,19 @@ const login = async (req, res) => {
   const refreshToken = generateRefreshToken(user);
 
   res.cookie('accessToken', accessToken, {
-    httpOnly: true,
-    secure: true,
+    httpOnly: false,
+    secure: true, 
     sameSite: 'none',
     });
   res.cookie('refreshToken', refreshToken, 
     { 
-      httpOnly: true,
+      httpOnly: false,
       secure: true,
       sameSite: 'none',
      });
 
      res.cookie('role', user.role, {
-      httpOnly: true,
+      httpOnly: false,
       secure: true,
       sameSite: 'none',
     });
@@ -121,6 +121,24 @@ const logout = async (req, res) => {
 // logout
 
 
+// authorize user
+ const  authorizeUser = (req, res) => {
+  const token =  req.cookies.accessToken; 
+
+  if (!token) {
+    return res.status(401).json({ message: 'Unauthorized: No token' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.ACCESS_JWT_SECRET);
+    res.status(200).json({ message: "authorized", role: decoded.role });
+  } catch (err) {
+    return res.status(401).json({ message: 'Unauthorized: Invalid token' });
+  }
+}
+// authorize user
+
+
 
 const refreshToken = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
@@ -131,7 +149,7 @@ const refreshToken = async (req, res) => {
     const accessToken = generateAccessToken({ id: user.id, role: user.role });
     res.cookie('accessToken', accessToken, 
       {
-        httpOnly: true,
+        httpOnly: false,
         secure: true,
         sameSite: 'none',
        });
@@ -139,4 +157,4 @@ const refreshToken = async (req, res) => {
   });
 };
 
-export { register, login, refreshToken, createAdmin, logout };
+export { register, login, refreshToken, createAdmin, logout , authorizeUser };
