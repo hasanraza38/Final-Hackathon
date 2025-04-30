@@ -18,8 +18,11 @@ const LoanPage = () => {
   const [userData, setUserData] = useState(null)
 
   useEffect(() => {
-    const authStatus = isAuthenticated()
-    setIsLoggedIn(authStatus)
+    const checkAuth = async () => {
+      const authStatus = await isAuthenticated();
+      setIsLoggedIn(authStatus)
+    };
+    checkAuth()
     fetchLoans()
   }, [])
 

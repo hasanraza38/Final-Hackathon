@@ -12,16 +12,19 @@ const Dashboard = () => {
   const [isLoadingAppointments, setIsLoadingAppointments] = useState(false)
   const [appointments, setAppointments] = useState([])
 
-  useEffect(() => {
-    const authStatus = isAuthenticated();
-    setIsLoggedIn(authStatus);
-    if (authStatus) {
-            fetchAppointments()
-          } 
-  }, []);
-
   
-  const fetchAppointments = async () => {
+  useEffect(() => {
+    const checkAuth = async () => {
+      const authStatus = await isAuthenticated();
+      setIsLoggedIn(authStatus)
+      // console.log(authStatus);
+      
+    };
+    checkAuth()
+fetchAppointments()
+  }, [])
+  
+const fetchAppointments = async () => {
         setIsLoadingAppointments(true)
         try {
           const response = await api.get("/appointment/allappointments")
@@ -146,14 +149,14 @@ const Dashboard = () => {
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <span
                                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                    appointment.loanId.status === "approved"
+                                    appointment.loanId?.status === "approved"
                                       ? "bg-green-100 text-green-800"
-                                      : appointment.loanId.status === "rejected"
+                                      : appointment.loanId?.status === "rejected"
                                         ? "bg-red-100 text-red-800"
                                         : "bg-yellow-100 text-yellow-800"
                                   }`}
                                 >
-                                  {appointment.loanId.status}
+                                  {appointment.loanId?.status} 
                                 </span>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -180,14 +183,14 @@ const Dashboard = () => {
                               <div className="flex justify-between">
                               <span
                               className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                appointment.loanId.status === "approved"
+                                appointment.loanId?.status === "approved"
                                   ? "bg-green-100 text-green-800"
-                                  : appointment.loanId.status === "rejected"
+                                  : appointment.loanId?.status === "rejected"
                                     ? "bg-red-100 text-red-800"
                                     : "bg-yellow-100 text-yellow-800"
                               }`}
                             >
-                              {appointment.loanId.status}
+                              {appointment.loanId?.status}
                               
                                </span>
                             </div>

@@ -7,7 +7,9 @@ import loanCategory from '../models/loanCategory.models.js';
 const submitLoanApplication = async (req, res) => {
   try {
     const { category, subcategory, loanAmount, initialDeposit, loanPeriod, guarantors, address } = req.body;
-    const userId = req.user.id;
+    const userId =  req.user?.id;
+    console.log(userId, 'userId from token');
+    
 
     const categoryDoc = await loanCategory.findOne({ name: category });
     if (!categoryDoc) {
@@ -29,22 +31,22 @@ const submitLoanApplication = async (req, res) => {
 
     for (const guarantor of guarantors) {
       if (!guarantor.name || !guarantor.cnic || !guarantor.email) {
-        return res.status(400).json({ message: `Missing required fields for guarantor: ${guarantors.name || 'Unknown'}` });
+        return res.status(400).json({ message: `Missing required fields for guarantor: ${guarantor.name || 'Unknown'}` });
       }
 
 
-      const existingGuarantorCnic = await LoanApplication.findOne({ 'guarantors.cnic': guarantors.cnic });
+      const existingGuarantorCnic = await LoanApplication.findOne({ 'guarantors.cnic': guarantor.cnic });
       if (existingGuarantorCnic) {
-        return res.status(400).json({ message: `Guarantor CNIC ${guarantors.cnic} already registered` });
+        return res.status(400).json({ message: `Guarantor CNIC ${guarantor.cnic} already registered` });
       }
 
-      const existingGuarantorEmail = await LoanApplication.findOne({ 'guarantors.email': guarantors.email });
+      const existingGuarantorEmail = await LoanApplication.findOne({ 'guarantors.email': guarantor.email });
       if (existingGuarantorEmail) {
-        return res.status(400).json({ message: `Guarantor email ${guarantors.email} already registered` });
+        return res.status(400).json({ message: `Guarantor email ${guarantor.email} already registered` });
       }
-    const existingGuarantorPhone = await LoanApplication.findOne({ 'guarantors.phone': guarantors.phone });
+    const existingGuarantorPhone = await LoanApplication.findOne({ 'guarantors.phone': guarantor.phone });
     if (existingGuarantorPhone) {
-      return res.status(400).json({ message: `Guarantor email ${guarantors.phone} already registered` });
+      return res.status(400).json({ message: `Guarantor email ${guarantor.phone} already registered` });
     }
   }
 

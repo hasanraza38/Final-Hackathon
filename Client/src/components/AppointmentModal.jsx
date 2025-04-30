@@ -77,14 +77,14 @@ const AppointmentModal = ({ appointmentId, onClose }) => {
               <div className="mb-6 flex justify-between items-center" >
                 <h3 className="text-lg font-medium text-gray-900">Application Status</h3>
                 <span
-                  className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${appointment.loanId.status === "approved"
+                  className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${appointment.loanId?.status === "approved"
                       ? "bg-green-100 text-green-800"
-                      : appointment.loanId.status === "rejected"
+                      : appointment.loanId?.status === "rejected"
                         ? "bg-red-100 text-red-800"
                         : "bg-yellow-100 text-yellow-800"
                     }`}
                 >
-                  {appointment.loanId.status}
+                  {appointment.loanId?.status}
                 </span>
               </div>
 
@@ -94,27 +94,27 @@ const AppointmentModal = ({ appointmentId, onClose }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-gray-500">Loan Category</p>
-                <p className="font-medium capitalize">{appointment.loanId.category || "N/A"}</p>
+                <p className="font-medium capitalize">{appointment.loanId?.category || "N/A"}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Subcategory</p>
-                <p className="font-medium">{appointment.loanId.subcategory || "N/A"}</p>
+                <p className="font-medium">{appointment.loanId?.subcategory || "N/A"}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Loan Amount</p>
-                <p className="font-medium">{formatCurrency(appointment.loanId.loanAmount)}</p>
+                <p className="font-medium">{formatCurrency(appointment.loanId?.loanAmount)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Initial Deposit</p>
-                <p className="font-medium">{formatCurrency(appointment.loanId.initialDeposit)}</p>
+                <p className="font-medium">{formatCurrency(appointment.loanId?.initialDeposit)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Loan Period</p>
-                <p className="font-medium">{appointment.loanId.loanPeriod} months</p>
+                <p className="font-medium">{appointment.loanId?.loanPeriod} months</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Net Loan</p>
-                <p className="font-medium">{formatCurrency(appointment.loanId.loanAmount - appointment.loanId.initialDeposit)}</p>
+                <p className="font-medium">{formatCurrency(appointment.loanId?.loanAmount - appointment.loanId?.initialDeposit)}</p>
               </div>
             </div>
           </div>

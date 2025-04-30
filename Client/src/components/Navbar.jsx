@@ -6,7 +6,19 @@ import { isAdmin } from "../utils/auth.js"
 
 const Navbar = ({ isLoggedIn, onLoginClick, onSignupClick}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [admin, setAdmin] = useState(false);  
   const dropdownRef = useRef(null)
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (isLoggedIn) {   
+        const result = await isAdmin();
+        setAdmin(result);
+        console.log(result);
+      }
+    };
+    checkAdmin();
+  }, [isLoggedIn]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -60,7 +72,7 @@ const Navbar = ({ isLoggedIn, onLoginClick, onSignupClick}) => {
 
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                    {isAdmin() ? (
+                    {admin ? (
                       <Link to="/admin-panel" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       Admin Panel
                     </Link>

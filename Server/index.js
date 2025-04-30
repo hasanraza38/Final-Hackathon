@@ -13,7 +13,8 @@ const app = express();
 const port = process.env.PORT;
 
 const allowedOrigins = [
-  'https://saylani-microfinance0.vercel.app'];
+  process.env.FRONTEND_URL,
+];
 
 app.use(express.json());
 app.use(cookieParser());

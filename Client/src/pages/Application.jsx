@@ -47,9 +47,14 @@ const ApplicationPage = () => {
   const watchedLoanPeriod = watch("loanPeriod")
 
   useEffect(() => {
-    const authStatus = isAuthenticated()
-    setIsLoggedIn(authStatus)
-    fetchLoanCategories()
+    const checkAuth = async () => {
+      const authStatus = await isAuthenticated();
+      setIsLoggedIn(authStatus)
+      // console.log("Auth status:", authStatus);
+      
+    };
+    checkAuth()
+fetchLoanCategories()
   }, [])
 
   useEffect(() => {
@@ -146,7 +151,7 @@ const ApplicationPage = () => {
       const response = await api.post("/loanapplication", applicationData)
       setSubmissionResult(response.data)
     } catch (error) {
-      console.error("Error submitting application:", error)
+      console.error("Error submitting application:", error.message)
 
       if (error.response) {
         setApiError(error.response.data.message || "Failed to submit application. Please try again.")
