@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
-import Navbar from "../components/Navbar.jsx"
 import Footer from "../components/Footer.jsx"
 import api from "../services/api.js"
 import { isAuthenticated } from "../utils/auth.js"
@@ -180,7 +179,6 @@ fetchLoanCategories()
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar isLoggedIn={isLoggedIn} />
 
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6 md:p-8">

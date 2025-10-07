@@ -4,7 +4,7 @@ import api from "../services/api.js"
 
 const LoginModal = ({ onClose, onLogin, onSwitchToSignup, fromSignup = false }) => {
   const [isLoading, setIsLoading] = useState(false)
-  const [apiError, setApiError] = useState(null)
+  const [apiError, setApiError] = useState("")
   const [signupSuccess, setSignupSuccess] = useState(fromSignup)
 
   const {
@@ -28,33 +28,42 @@ const LoginModal = ({ onClose, onLogin, onSwitchToSignup, fromSignup = false }) 
     }
   }, [signupSuccess])
 
-  const onSubmit = async (data) => {
-    setIsLoading(true)
-    setApiError(null)
 
-    try {
-      const response = await api.post("/auth/login", data)
-      const isAdmin= response.data.role === "admin"
-      if (isAdmin) {
-        window.location.href = "/admin-panel"
-        return
-      }
+      const onSubmit = async (data) => {
+  setIsLoading(true);
+  setApiError("");
 
-      onLogin(response.data)
-    } catch (error) {
-      console.error("Login error:", error)
+  try {
+    const response = await api.post("/auth/login", data);
+    const { role } = response.data;
 
-      if (error.response) {
-        setApiError(error.response.data.message || "Invalid credentials. Please try again.")
-      } else if (error.request) {
-        setApiError("No response from server. Please try again later.")
-      } else {
-        setApiError("An error occurred. Please try again.")
-      }
-    } finally {
-      setIsLoading(false)
+    if (role === "admin") {
+      window.location.href = "/admin-panel";
+      return;
     }
+
+    onLogin(response.data);
+  } catch (error) {
+    console.error("Login error:", error);
+
+    let message = "Something went wrong. Please try again.";
+
+    if (error.response) {
+      message =
+        error.response.data?.message ||
+        error.response.data?.error ||
+        `Server error (${error.response.status})`;
+    } else if (error.request) {
+      message = "No response from server. Please check your internet connection.";
+    } else {
+      message = error.message || "Unexpected error occurred.";
+    }
+
+    setApiError(message);
+  } finally {
+    setIsLoading(false);
   }
+       };
 
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">

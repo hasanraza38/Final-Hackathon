@@ -11,7 +11,7 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
     register,
     handleSubmit,
     watch,
-    formState: { errors , },
+    formState: { errors, },
   } = useForm({
     defaultValues: {
       cnic: "",
@@ -71,7 +71,7 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
     }
 
 
-    
+
   }
 
   return (
@@ -111,9 +111,8 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
                   message: "Name must be at least 4 characters",
                 },
               })}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
-                errors.name ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${errors.name ? "border-red-500" : "border-gray-300"
+                }`}
               placeholder="Your Name"
             />
             {errors.name && <p className="mt-1 text-red-500 text-xs">{errors.name.message}</p>}
@@ -127,9 +126,8 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
               type="email"
               id="email"
               {...register("email", { required: true })}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
-                errors.email ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${errors.email ? "border-red-500" : "border-gray-300"
+                }`}
               placeholder="your@email.com"
             />
             {errors.email && <p className="mt-1 text-red-500 text-xs">{errors.email.message}</p>}
@@ -143,62 +141,15 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
               type="number"
               id="cnic"
               {...register("cnic", { required: true })}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
-                errors.cnic ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${errors.cnic ? "border-red-500" : "border-gray-300"
+                }`}
               placeholder="1234512345671"
             />
             {errors.cnic && <p className="mt-1 text-red-500 text-xs">{errors.cnic.message}</p>}
           </div>
 
-          {/* <div className="mb-4">
-            <label htmlFor="password" className="block text-gray-700 text-sm font-medium mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              {...register("password", {
-                required: "Password is required",
-                minLength: {
-                  value: 6,
-                  message: "Password must be at least 6 characters",
-                },
-                pattern: {
-                  value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
-                  message:
-                    "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character",
-                },
-              })}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
-                errors.password ? "border-red-500" : "border-gray-300"
-              }`}
-              placeholder="••••••••"
-            />
-            {errors.password && <p className="mt-1 text-red-500 text-xs">{errors.password.message}</p>}
-          </div>
 
-          <div className="mb-6">
-            <label htmlFor="confirmPassword" className="block text-gray-700 text-sm font-medium mb-2">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              {...register("confirmPassword", {
-                required: "Please confirm your password",
-                validate: (value) => value === password || "Passwords do not match",
-              })}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
-                errors.confirmPassword ? "border-red-500" : "border-gray-300"
-              }`}
-              placeholder="••••••••"
-            />
-            {errors.confirmPassword && <p className="mt-1 text-red-500 text-xs">{errors.confirmPassword.message}</p>}
-          </div> */}
-
-
-<div className="mb-4">
+          <div className="mb-4">
             <label htmlFor="password" className="block text-gray-700 text-sm font-medium mb-2">
               Password
             </label>
@@ -212,13 +163,9 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
                   message: "Password must be at least 6 characters",
                 },
                 validate: (value) => {
-                  // Check for at least one uppercase letter
                   const hasUppercase = /[A-Z]/.test(value)
-                  // Check for at least one lowercase letter
                   const hasLowercase = /[a-z]/.test(value)
-                  // Check for at least one number
                   const hasNumber = /[0-9]/.test(value)
-                  // Check for at least one special character
                   const hasSpecial = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(value)
 
                   if (!hasUppercase) return "Password must contain at least one uppercase letter"
@@ -229,9 +176,8 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
                   return true
                 },
               })}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
-                errors.password ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${errors.password ? "border-red-500" : "border-gray-300"
+                }`}
               placeholder="••••••••"
             />
             {errors.password && <p className="mt-1 text-red-500 text-xs">{errors.password.message}</p>}
@@ -251,9 +197,8 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
                 required: "Please confirm your password",
                 validate: (value) => value === password || "Passwords do not match",
               })}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
-                errors.confirmPassword ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${errors.confirmPassword ? "border-red-500" : "border-gray-300"
+                }`}
               placeholder="••••••••"
             />
             {errors.confirmPassword && <p className="mt-1 text-red-500 text-xs">{errors.confirmPassword.message}</p>}
@@ -262,9 +207,8 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
           <button
             type="submit"
             disabled={isLoading || signupSuccess}
-            className={`w-full bg-[#8dc63f] hover:bg-[#8ec63fc4] text-white py-2 px-4 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${
-              isLoading || signupSuccess ? "opacity-70 cursor-not-allowed" : ""
-            }`}
+            className={`w-full bg-[#8dc63f] hover:bg-[#8ec63fc4] text-white py-2 px-4 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${isLoading || signupSuccess ? "opacity-70 cursor-not-allowed" : ""
+              }`}
           >
             {isLoading ? (
               <span className="flex items-center justify-center">

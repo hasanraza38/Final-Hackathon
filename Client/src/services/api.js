@@ -21,10 +21,15 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    if (originalRequest.url.includes("/auth/login") || originalRequest.url.includes("/auth/register")) {
+      return Promise.reject(error);
+    }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
@@ -39,7 +44,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await api.post('/auth/refresh');
+        await api.post("/auth/refresh");
         processQueue(null);
         return api(originalRequest);
       } catch (refreshError) {

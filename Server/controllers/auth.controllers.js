@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import { generateAccessToken, generateRefreshToken } from '../utils/tokens.js';
 import jwt from 'jsonwebtoken';
 
+const isProduction = process.env.NODE_ENV === "production";
 //create admin
 const createAdmin = async (req, res) => {
   const { cnic, email, name, password, address } = req.body;
@@ -16,7 +17,7 @@ const createAdmin = async (req, res) => {
   if (existingemail) return res.status(401).json({ message: "admin already registered with email" });
   const existingcnic = await User.findOne({ cnic });
   if (existingcnic) return res.status(401).json({ message: "admin already registered with id card number" });
-  
+
 
   const user = new User({
     cnic,
@@ -61,7 +62,7 @@ const register = async (req, res) => {
   try {
     res.status(201).json({ message: 'User registered successfully', data: createUser });
   } catch (error) {
-    res.status(400).json({ error: error.message }); 
+    res.status(400).json({ error: error.message });
   }
 
 };
@@ -83,16 +84,17 @@ const login = async (req, res) => {
 
   res.cookie('accessToken', accessToken, {
     httpOnly: true,
-    secure: true, 
-    sameSite: 'none', 
-    });
-  res.cookie('refreshToken', refreshToken, 
-    { 
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    maxAge: 24 * 60 * 60 * 1000,
+  });
+  res.cookie('refreshToken', refreshToken,
+    {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-     });
-  // console.log(cookies set , { accessToken, refreshToken });
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
 
   res.json({ message: 'Logged in', role: user.role });
 };
@@ -102,8 +104,16 @@ const login = async (req, res) => {
 // logout
 const logout = async (req, res) => {
   try {
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken',);
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+    });
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+    });
 
     res.json({ message: 'Logout successful' });
   } catch (error) {
@@ -115,9 +125,16 @@ const logout = async (req, res) => {
 
 
 // authorize user
- const authorizeUser = (req, res) => {
+const authenticatedUser = (req, res) => {
   try {
-    res.status(200).json({
+    if (!req.user) {
+      return res.status(401).json({
+        isAuthenticated: false,
+        message: "Not authenticated",
+      });
+    }
+
+    return res.status(200).json({
       isAuthenticated: true,
       user: {
         id: req.user._id,
@@ -126,10 +143,13 @@ const logout = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Check Auth Error:', error);
-    res.status(401).json({ isAuthenticated: false, message: 'Not authenticated' });
+    console.error("Authorize User Error:", error);
+    return res.status(500).json({
+      isAuthenticated: false,
+      message: "Server error while checking authentication",
+    });
   }
-}
+};
 // authorize user
 
 
@@ -138,17 +158,21 @@ const refreshToken = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   if (!refreshToken) return res.status(401).json({ message: 'No refresh token' });
 
-  jwt.verify(refreshToken, process.env.REFRESH_JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: 'Invalid refresh token' });
-    const accessToken = generateAccessToken({ id: user.id, role: user.role });
-    res.cookie('accessToken', accessToken, 
-      {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none',
-       });
-    res.json({ message: 'Token refreshed' });
+jwt.verify(refreshToken, process.env.REFRESH_JWT_SECRET, (err, user) => {
+  if (err) return res.status(403).json({ message: 'Invalid refresh token' });
+
+  const accessToken = generateAccessToken({ _id: user.id, role: user.role }); // 👈 fixed
+  res.cookie('accessToken', accessToken, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    maxAge: 24 * 60 * 60 * 1000,
   });
+
+  res.json({ message: 'Token refreshed' });
+});
+
 };
 
-export { register, login, refreshToken, createAdmin, logout , authorizeUser };
+
+export { register, login, refreshToken, createAdmin, logout, authenticatedUser };

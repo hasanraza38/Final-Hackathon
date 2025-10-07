@@ -1,38 +1,19 @@
 import React from 'react'
 import Footer from '../components/Footer.jsx'
 import { useNavigate } from 'react-router-dom'
-import saylni_logo from '../assets/saylani_logo.png'
 
 const Home = () => {
   const navigate = useNavigate()
-  
-const navigateToLoanPage = () => navigate('/loan-page')
+
   return (
     <>
-    {/* //Navbar */}
-    <nav className="bg-white shadow-md">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between h-16 items-center">
-                <div className="flex-shrink-0">
-                  <img className="h-12 w-auto" src={saylni_logo} alt="Saylani Logo" />
-                </div>
-                <div>
-                  <button onClick={navigateToLoanPage} className="bg-[#8dc63f] hover:bg-[#8ec63fee] text-white px-4 py-2 rounded-md text-sm font-medium">
-                    Apply for Loan
-                  </button>
-                </div>
-              </div>
-            </div>
-          </nav>
-    {/* //Navbar */}
-  
 
-{/* hero section */}
-<div className="bg-white">
+      {/* hero section */}
+      <div className="bg-white">
         <div className="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
-               <span className="text-[#8dc63f]">Saylani</span> Microfinance
+              <span className="text-[#8dc63f]">Saylani</span> Microfinance
             </h1>
             <p className="mt-6 max-w-2xl mx-auto text-xl text-gray-500">
               Empowering communities through accessible financial solutions. Our microfinance program provides small loans
@@ -41,11 +22,11 @@ const navigateToLoanPage = () => navigate('/loan-page')
           </div>
         </div>
       </div>
-              {/* hero section */}
+      {/* hero section */}
 
 
-     {/* services  */}
-     <div className="py-12 bg-gray-50">
+      {/* services  */}
+      <div className="py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:text-center">
             <h2 className="text-base text-[#8dc63f] font-semibold tracking-wide uppercase">Our Services</h2>
@@ -148,9 +129,9 @@ const navigateToLoanPage = () => navigate('/loan-page')
       </div>
       {/* services  */}
 
-{/* footer */}
-    <Footer/>
-{/* footer */}
+      {/* footer */}
+      <Footer />
+      {/* footer */}
 
     </>
   )

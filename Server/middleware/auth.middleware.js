@@ -5,14 +5,14 @@ async function authenticateToken(req, res, next) {
    
   const token = req.cookies.accessToken;
 
-  console.log('Token from cookies:', token);
+  // console.log('Token from cookies:', token);
   if (!token) {
     return res.status(401).json({ message: 'Not authorized, no token' });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.ACCESS_JWT_SECRET);
-    console.log('Decoded token:', decoded);
+    // console.log('Decoded token:', decoded);
 
     if (!decoded.id) {
       return res.status(401).json({ message: 'Invalid token: User ID missing' });

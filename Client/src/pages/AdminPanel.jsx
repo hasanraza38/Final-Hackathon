@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
-import Navbar from "../components/Navbar.jsx"
 import Footer from "../components/Footer.jsx"
 import LoanApplicationModal from "../components/LoanApplicationModal.jsx"
 import api from "../services/api.js"
@@ -259,7 +258,6 @@ const AdminPanel = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar isLoggedIn={isLoggedIn}  />
 
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">

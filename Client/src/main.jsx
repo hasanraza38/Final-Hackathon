@@ -7,7 +7,7 @@ import LoanPage from './pages/LoanPage.jsx'
 import ApplicationPage from './pages/Application.jsx'
 import DashboardPage from './pages/Dashboard.jsx'
 import AdminPanel from './pages/AdminPanel.jsx'
-import { AdminProtectedRoute, ProtectedRoute } from './utils/ProtectedRoutes.jsx'
+import { AdminProtectedRoute, ProtectedRoute } from './components/ProtectedRoutes.jsx'
 
 
 

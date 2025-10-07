@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
 import AppointmentModal from "../components/AppointmentModal.jsx";
 import api from "../services/api.js";
@@ -59,7 +58,6 @@ const fetchAppointments = async () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar isLoggedIn={isLoggedIn}  />
 
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
