@@ -28,34 +28,50 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
     setIsLoading(true)
     setApiError(null)
 
+
+
     try {
       const { ...signupData } = data
 
+      delete signupData.confirmPassword
+
       const response = await api.post("auth/register", signupData)
       // console.log(response.data)
-      
-      onSignup(response.data)
+
       setSignupSuccess(true)
+
+      if (onSignup) {
+        onSignup(response.data)
+      }
 
       setTimeout(() => {
         onSwitchToLogin(true)
       }, 1500)
     } catch (error) {
       console.error("Signup error:", error)
+
       if (error.response) {
         if (error.response.status === 409) {
-          setApiError("This email is already registered. Please use a different email or login.")
+          setApiError("This email or CNIC is already registered. Please use different credentials or login.")
+        } else if (error.response.status === 400) {
+          const errorMessage = error.response.data.message || error.response.data.error
+          setApiError(errorMessage || "Please check your information and try again.")
+        } else if (error.response.status === 500) {
+          setApiError("Server error. Please try again later or contact support.")
         } else {
           setApiError(error.response.data.message || "Registration failed. Please try again.")
         }
       } else if (error.request) {
-        setApiError("No response from server. Please try again later.")
+        setApiError("No response from server. Please check your internet connection and try again later.")
       } else {
         setApiError("An error occurred. Please try again.")
       }
     } finally {
       setIsLoading(false)
     }
+
+
+    
   }
 
   return (
@@ -135,7 +151,7 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
             {errors.cnic && <p className="mt-1 text-red-500 text-xs">{errors.cnic.message}</p>}
           </div>
 
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <label htmlFor="password" className="block text-gray-700 text-sm font-medium mb-2">
               Password
             </label>
@@ -160,6 +176,68 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
               placeholder="••••••••"
             />
             {errors.password && <p className="mt-1 text-red-500 text-xs">{errors.password.message}</p>}
+          </div>
+
+          <div className="mb-6">
+            <label htmlFor="confirmPassword" className="block text-gray-700 text-sm font-medium mb-2">
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              id="confirmPassword"
+              {...register("confirmPassword", {
+                required: "Please confirm your password",
+                validate: (value) => value === password || "Passwords do not match",
+              })}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
+                errors.confirmPassword ? "border-red-500" : "border-gray-300"
+              }`}
+              placeholder="••••••••"
+            />
+            {errors.confirmPassword && <p className="mt-1 text-red-500 text-xs">{errors.confirmPassword.message}</p>}
+          </div> */}
+
+
+<div className="mb-4">
+            <label htmlFor="password" className="block text-gray-700 text-sm font-medium mb-2">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              {...register("password", {
+                required: "Password is required",
+                minLength: {
+                  value: 6,
+                  message: "Password must be at least 6 characters",
+                },
+                validate: (value) => {
+                  // Check for at least one uppercase letter
+                  const hasUppercase = /[A-Z]/.test(value)
+                  // Check for at least one lowercase letter
+                  const hasLowercase = /[a-z]/.test(value)
+                  // Check for at least one number
+                  const hasNumber = /[0-9]/.test(value)
+                  // Check for at least one special character
+                  const hasSpecial = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(value)
+
+                  if (!hasUppercase) return "Password must contain at least one uppercase letter"
+                  if (!hasLowercase) return "Password must contain at least one lowercase letter"
+                  if (!hasNumber) return "Password must contain at least one number"
+                  if (!hasSpecial) return "Password must contain at least one special character"
+
+                  return true
+                },
+              })}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#8dc63f] ${
+                errors.password ? "border-red-500" : "border-gray-300"
+              }`}
+              placeholder="••••••••"
+            />
+            {errors.password && <p className="mt-1 text-red-500 text-xs">{errors.password.message}</p>}
+            <p className="mt-1 text-xs text-gray-500">
+              Password must be at least 6 characters and include uppercase, lowercase, number, and special character.
+            </p>
           </div>
 
           <div className="mb-6">
@@ -231,3 +309,9 @@ const SignupModal = ({ onClose, onSignup, onSwitchToLogin }) => {
 }
 
 export default SignupModal
+
+
+
+
+
+

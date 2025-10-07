@@ -1,12 +1,12 @@
 import express from 'express'; 
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import authRoutes from './src/routes/auth.routes.js';
-import loanApplicationRoutes from './src/routes/loanApplication.routes.js';
-import adminRoutes from './src/routes/admin.routes.js';
-import appointmentRoutes from './src/routes/appointment.routes.js';
+import authRoutes from './routes/auth.routes.js';
+import loanApplicationRoutes from './routes/loanApplication.routes.js';
+import adminRoutes from './routes/admin.routes.js';
+import appointmentRoutes from './routes/appointment.routes.js';
 import dotenv from "dotenv";
-import connectDB from './src/db/index.js';
+import connectDB from './db/index.js';
 dotenv.config();
 
 const app = express();

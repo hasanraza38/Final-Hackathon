@@ -7,7 +7,6 @@ const api = axios.create({
 
 
 
-// for refresh access token
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -54,7 +53,6 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-// for refresh access token
 
 
 export default api;

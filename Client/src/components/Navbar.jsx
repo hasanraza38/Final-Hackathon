@@ -35,7 +35,7 @@ const Navbar = ({ isLoggedIn, onLoginClick, onSignupClick}) => {
 
   const logout = async () => {
     await api.get("/auth/logout")
-    window.location.reload()
+    // window.location.reload()
   }
 
   return (
