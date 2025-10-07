@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://final-hackathon-production.up.railway.app/api/v1',
+  baseURL: 'https://final-hackathon-2nnj.vercel.app/api/v1',
   withCredentials: true
 });
 
