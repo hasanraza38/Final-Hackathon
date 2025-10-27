@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { generateAccessToken, generateRefreshToken } from "../utils/tokens.js";
 import jwt from "jsonwebtoken";
 
+const isProduction = process.env.NODE_ENV === "production";
 //create admin
 const createAdmin = async (req, res) => {
   const { cnic, email, name, password, address } = req.body;
