@@ -105,7 +105,6 @@ const submitLoanApplication = async (req, res) => {
     res.status(400).json({ error: error.message || 'Failed to submit loan' });
   }
 };
-// submit loan application
 
 
 
@@ -115,7 +114,6 @@ const getLoanApplicationDetails = async (req, res) => {
   if (!loanApplication) return res.status(404).json({ message: 'Loan not found' });
   res.json(loanApplication);
 };
-// get loan detail
 
 
 export {submitLoanApplication, getLoanApplicationDetails}
