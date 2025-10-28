@@ -95,16 +95,16 @@ const login = async (req, res) => {
 
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
+    secure: true,
+    sameSite: "none",
     domain: ".vercel.app",
     maxAge: 24 * 60 * 60 * 1000,
   });
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: isProduction,
+    secure: true,
     domain: ".vercel.app",
-    sameSite: isProduction ? "none" : "lax",
+    sameSite: "none",
     maxAge: 24 * 60 * 60 * 1000,
   });
 
@@ -117,15 +117,15 @@ const logout = async (req, res) => {
   try {
     res.clearCookie("accessToken", {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
+      secure: true,
+      sameSite: "none",
       domain: ".vercel.app",
       path: "/",
     });
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
+      secure: true,
+      sameSite: "none",
       domain: ".vercel.app",
       path: "/",
     });
@@ -177,8 +177,8 @@ const refreshToken = async (req, res) => {
     const accessToken = generateAccessToken({ _id: user.id, role: user.role }); // 👈 fixed
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
+      secure: true,
+      sameSite: "none",
       domain: ".vercel.app",
       maxAge: 24 * 60 * 60 * 1000,
     });
