@@ -1,7 +1,7 @@
-import User from '../models/auth.models.js';
-import bcrypt from 'bcrypt';
-import { generateAccessToken, generateRefreshToken } from '../utils/tokens.js';
-import jwt from 'jsonwebtoken';
+import User from "../models/auth.models.js";
+import bcrypt from "bcrypt";
+import { generateAccessToken, generateRefreshToken } from "../utils/tokens.js";
+import jwt from "jsonwebtoken";
 
 const isProduction = process.env.NODE_ENV === "production";
 //create admin
@@ -14,29 +14,33 @@ const createAdmin = async (req, res) => {
   if (!password) return res.status(400).json({ message: "password required" });
 
   const existingemail = await User.findOne({ email });
-  if (existingemail) return res.status(401).json({ message: "admin already registered with email" });
+  if (existingemail)
+    return res
+      .status(401)
+      .json({ message: "admin already registered with email" });
   const existingcnic = await User.findOne({ cnic });
-  if (existingcnic) return res.status(401).json({ message: "admin already registered with id card number" });
-
+  if (existingcnic)
+    return res
+      .status(401)
+      .json({ message: "admin already registered with id card number" });
 
   const user = new User({
     cnic,
     email,
     name,
     password,
-    role: 'admin',
-    address
+    role: "admin",
+    address,
   });
 
   try {
     await user.save();
-    res.status(201).json({ message: 'Admin created successfully' });
+    res.status(201).json({ message: "Admin created successfully" });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
 //create admin
-
 
 // register user
 const register = async (req, res) => {
@@ -48,9 +52,15 @@ const register = async (req, res) => {
   if (!password) return res.status(400).json({ message: "password required" });
 
   const existingemail = await User.findOne({ email });
-  if (existingemail) return res.status(401).json({ message: "admin already registered with email" });
+  if (existingemail)
+    return res
+      .status(401)
+      .json({ message: "admin already registered with email" });
   const existingcnic = await User.findOne({ cnic });
-  if (existingcnic) return res.status(401).json({ message: "admin already registered with id card number" });
+  if (existingcnic)
+    return res
+      .status(401)
+      .json({ message: "admin already registered with id card number" });
 
   const createUser = await User.create({
     cnic,
@@ -60,46 +70,45 @@ const register = async (req, res) => {
   });
 
   try {
-    res.status(201).json({ message: 'User registered successfully', data: createUser });
+    res
+      .status(201)
+      .json({ message: "User registered successfully", data: createUser });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
-
 };
 // register user
-
-
 
 //login user
 const login = async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
-  if (!user || !await bcrypt.compare(password, user.password)) {
-    return res.status(401).json({ message: 'Invalid credentials' });
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return res.status(401).json({ message: "Invalid credentials" });
   }
 
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
 
-  res.cookie('accessToken', accessToken, {
+  res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
+    domain: ".vercel.app",
     maxAge: 24 * 60 * 60 * 1000,
   });
-  res.cookie('refreshToken', refreshToken,
-    {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
-      maxAge: 24 * 60 * 60 * 1000,
-    });
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: isProduction,
+    domain: ".vercel.app",
+    sameSite: isProduction ? "none" : "lax",
+    maxAge: 24 * 60 * 60 * 1000,
+  });
 
-  res.json({ message: 'Logged in', role: user.role });
+  res.json({ message: "Logged in", role: user.role });
 };
 //login user
-
 
 // logout
 const logout = async (req, res) => {
@@ -108,21 +117,24 @@ const logout = async (req, res) => {
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? "none" : "lax",
+      domain: ".vercel.app",
+      path: "/",
     });
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? "none" : "lax",
+      domain: ".vercel.app",
+      path: "/",
     });
 
-    res.json({ message: 'Logout successful' });
+    res.json({ message: "Logout successful" });
   } catch (error) {
-    console.error('Logout Error:', error);
+    console.error("Logout Error:", error);
     res.status(400).json({ error: error.message });
   }
 };
 // logout
-
 
 // authorize user
 const authenticatedUser = (req, res) => {
@@ -152,27 +164,32 @@ const authenticatedUser = (req, res) => {
 };
 // authorize user
 
-
-
 const refreshToken = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
-  if (!refreshToken) return res.status(401).json({ message: 'No refresh token' });
+  if (!refreshToken)
+    return res.status(401).json({ message: "No refresh token" });
 
-jwt.verify(refreshToken, process.env.REFRESH_JWT_SECRET, (err, user) => {
-  if (err) return res.status(403).json({ message: 'Invalid refresh token' });
+  jwt.verify(refreshToken, process.env.REFRESH_JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ message: "Invalid refresh token" });
 
-  const accessToken = generateAccessToken({ _id: user.id, role: user.role }); // 👈 fixed
-  res.cookie('accessToken', accessToken, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-    maxAge: 24 * 60 * 60 * 1000,
+    const accessToken = generateAccessToken({ _id: user.id, role: user.role }); // 👈 fixed
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      domain: ".vercel.app",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    res.json({ message: "Token refreshed" });
   });
-
-  res.json({ message: 'Token refreshed' });
-});
-
 };
 
-
-export { register, login, refreshToken, createAdmin, logout, authenticatedUser };
+export {
+  register,
+  login,
+  refreshToken,
+  createAdmin,
+  logout,
+  authenticatedUser,
+};

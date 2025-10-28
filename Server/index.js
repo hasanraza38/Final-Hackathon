@@ -19,6 +19,7 @@ app.use(
   cors({
     origin:"https://saylani-microfinance0.vercel.app", 
     credentials: true, 
+    optionsSuccessStatus: 200,
   })
 );
 
