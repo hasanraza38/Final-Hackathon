@@ -87,6 +87,8 @@ const login = async (req, res) => {
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return res.status(401).json({ message: "Invalid credentials" });
   }
+  console.log(isProduction);
+  
 
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
