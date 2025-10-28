@@ -17,8 +17,9 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin:"https://saylani-microfinance0.vercel.app", 
-    credentials: true, 
+    // Allow client origin from an environment variable so deployed client and server match.
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    credentials: true,
     optionsSuccessStatus: 200,
   })
 );

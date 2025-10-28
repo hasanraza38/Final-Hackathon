@@ -93,20 +93,32 @@ const login = async (req, res) => {
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
 
-  res.cookie("accessToken", accessToken, {
+  // Build cookie options dynamically. In production for cross-site cookies
+  // we need secure=true and sameSite='none'. Avoid hardcoding domain so the
+  // browser will use a host-only cookie by default which is less error-prone.
+  const cookieBase = {
     httpOnly: true,
-    secure: true,
-    sameSite: "none",
-    domain: ".vercel.app",
+    path: '/',
     maxAge: 24 * 60 * 60 * 1000,
-  });
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: true,
-    domain: ".vercel.app",
-    sameSite: "none",
-    maxAge: 24 * 60 * 60 * 1000,
-  });
+  };
+
+  const accessCookieOptions = {
+    ...cookieBase,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+  };
+
+  const refreshCookieOptions = { ...accessCookieOptions };
+
+  // Optionally allow setting a cookie domain via env var if necessary
+  // (e.g. COOKIE_DOMAIN=.example.com). If not provided, omit domain.
+  if (process.env.COOKIE_DOMAIN && isProduction) {
+    accessCookieOptions.domain = process.env.COOKIE_DOMAIN;
+    refreshCookieOptions.domain = process.env.COOKIE_DOMAIN;
+  }
+
+  res.cookie("accessToken", accessToken, accessCookieOptions);
+  res.cookie("refreshToken", refreshToken, refreshCookieOptions);
 
   res.json({ message: "Logged in", role: user.role });
 };
@@ -115,20 +127,19 @@ const login = async (req, res) => {
 // logout
 const logout = async (req, res) => {
   try {
-    res.clearCookie("accessToken", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      domain: ".vercel.app",
-      path: "/",
-    });
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      domain: ".vercel.app",
-      path: "/",
-    });
+    const clearOptions = {
+      path: '/',
+      // match the options used when setting the cookies
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+    };
+
+    if (process.env.COOKIE_DOMAIN && isProduction) {
+      clearOptions.domain = process.env.COOKIE_DOMAIN;
+    }
+
+    res.clearCookie("accessToken", clearOptions);
+    res.clearCookie("refreshToken", clearOptions);
 
     res.json({ message: "Logout successful" });
   } catch (error) {
