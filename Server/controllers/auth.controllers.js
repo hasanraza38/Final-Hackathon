@@ -87,13 +87,10 @@ const login = async (req, res) => {
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return res.status(401).json({ message: "Invalid credentials" });
   }
-  console.log(isProduction);
   
-
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
 
-  
   const cookieBase = {
     httpOnly: true,
     path: '/',
@@ -108,11 +105,17 @@ const login = async (req, res) => {
 
   const refreshCookieOptions = { ...accessCookieOptions };
 
- 
   if (process.env.COOKIE_DOMAIN && isProduction) {
     accessCookieOptions.domain = process.env.COOKIE_DOMAIN;
     refreshCookieOptions.domain = process.env.COOKIE_DOMAIN;
   }
+
+  console.log("🔐 Login - Setting cookies with options:", {
+    secure: accessCookieOptions.secure,
+    sameSite: accessCookieOptions.sameSite,
+    domain: accessCookieOptions.domain || "host-only (not set)",
+    httpOnly: accessCookieOptions.httpOnly
+  });
 
   res.cookie("accessToken", accessToken, accessCookieOptions);
   res.cookie("refreshToken", refreshToken, refreshCookieOptions);
@@ -124,7 +127,7 @@ const login = async (req, res) => {
 // logout
 const logout = async (req, res) => {
   try {
-    console.log("Logout called");
+    console.log("🚪 Logout called");
     console.log("   isProduction:", isProduction);
     console.log("   COOKIE_DOMAIN:", process.env.COOKIE_DOMAIN || "not set");
    
@@ -134,7 +137,7 @@ const logout = async (req, res) => {
       secure: isProduction,
       sameSite: isProduction ? 'none' : 'lax',
       expires: new Date(0),
-      maxAge: 0,
+      maxAge: -1, 
     };
 
     if (process.env.COOKIE_DOMAIN && isProduction) {
@@ -145,6 +148,8 @@ const logout = async (req, res) => {
 
     res.cookie("accessToken", "", clearOptions);
     res.cookie("refreshToken", "", clearOptions);
+
+    console.log("   Logout successful - cookies should be cleared");
 
     res.json({ message: "Logout successful" });
   } catch (error) {

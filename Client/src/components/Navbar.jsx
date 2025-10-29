@@ -13,6 +13,7 @@ const Navbar = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
   const [fromSignup, setFromSignup] = useState(false);
+  const [justLoggedOut, setJustLoggedOut] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,6 +21,11 @@ const Navbar = () => {
   const isHomePage = location.pathname === "/";
 
   useEffect(() => {
+    if (justLoggedOut) {
+      setJustLoggedOut(false);
+      return;
+    }
+
     const checkAuthStatus = async () => {
       try {
         const authStatus = await isAuthenticated();
@@ -39,7 +45,7 @@ const Navbar = () => {
     };
 
     checkAuthStatus();
-  }, [location.pathname]); 
+  }, [location.pathname, justLoggedOut]); 
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -61,6 +67,7 @@ const Navbar = () => {
       setIsLoggedIn(false);
       setAdmin(false);
       setIsDropdownOpen(false);
+      setJustLoggedOut(true); 
       
       navigate("/loan-page", { replace: true });
     }
