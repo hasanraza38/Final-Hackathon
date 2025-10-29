@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import saylaniLogo from "../assets/saylani_logo.png";
 import api from "../services/api.js";
-import { isAuthenticated, isAdmin } from "../utils/auth.js";
+import { isAuthenticated, isAdmin, clearUserCache } from "../utils/auth.js";
 import LoginModal from "../components/LoginModal.jsx";
 import SignupModal from "../components/SignupModal.jsx";
 
@@ -52,6 +52,7 @@ const Navbar = () => {
   const logout = async () => {
     try {
       await api.get("/auth/logout");
+      clearUserCache(); 
       setIsLoggedIn(false);
       setAdmin(false);
       navigate("/loan-page", { replace: true });
@@ -60,10 +61,24 @@ const Navbar = () => {
     }
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
+    clearUserCache();
     setIsLoggedIn(true);
     setShowLoginModal(false);
-    window.location.reload();
+    
+    try {
+      const adminStatus = await isAdmin();
+      setAdmin(adminStatus);
+      
+      if (adminStatus) {
+        navigate("/admin-panel", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
+    } catch (error) {
+      console.error("Error checking admin status:", error);
+      navigate("/dashboard", { replace: true });
+    }
   };
 
   const handleSignup = () => {

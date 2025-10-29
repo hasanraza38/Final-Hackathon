@@ -93,9 +93,7 @@ const login = async (req, res) => {
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
 
-  // Build cookie options dynamically. In production for cross-site cookies
-  // we need secure=true and sameSite='none'. Avoid hardcoding domain so the
-  // browser will use a host-only cookie by default which is less error-prone.
+  
   const cookieBase = {
     httpOnly: true,
     path: '/',
@@ -110,8 +108,7 @@ const login = async (req, res) => {
 
   const refreshCookieOptions = { ...accessCookieOptions };
 
-  // Optionally allow setting a cookie domain via env var if necessary
-  // (e.g. COOKIE_DOMAIN=.example.com). If not provided, omit domain.
+ 
   if (process.env.COOKIE_DOMAIN && isProduction) {
     accessCookieOptions.domain = process.env.COOKIE_DOMAIN;
     refreshCookieOptions.domain = process.env.COOKIE_DOMAIN;
@@ -129,7 +126,6 @@ const logout = async (req, res) => {
   try {
     const clearOptions = {
       path: '/',
-      // match the options used when setting the cookies
       secure: isProduction,
       sameSite: isProduction ? 'none' : 'lax',
     };
@@ -185,14 +181,21 @@ const refreshToken = async (req, res) => {
   jwt.verify(refreshToken, process.env.REFRESH_JWT_SECRET, (err, user) => {
     if (err) return res.status(403).json({ message: "Invalid refresh token" });
 
-    const accessToken = generateAccessToken({ _id: user.id, role: user.role }); // 👈 fixed
-    res.cookie("accessToken", accessToken, {
+    const accessToken = generateAccessToken({ _id: user.id, role: user.role });
+    
+    const accessCookieOptions = {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      domain: ".vercel.app",
+      path: '/',
       maxAge: 24 * 60 * 60 * 1000,
-    });
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+    };
+
+    if (process.env.COOKIE_DOMAIN && isProduction) {
+      accessCookieOptions.domain = process.env.COOKIE_DOMAIN;
+    }
+
+    res.cookie("accessToken", accessToken, accessCookieOptions);
 
     res.json({ message: "Token refreshed" });
   });

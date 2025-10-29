@@ -35,12 +35,6 @@ const LoginModal = ({ onClose, onLogin, onSwitchToSignup, fromSignup = false }) 
 
   try {
     const response = await api.post("/auth/login", data);
-    const { role } = response.data;
-
-    if (role === "admin") {
-      window.location.href = "/admin-panel";
-      return;
-    }
 
     onLogin(response.data);
   } catch (error) {

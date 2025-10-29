@@ -60,4 +60,8 @@ const isAdmin = async () => {
   }
 };
 
-export { isAuthenticated, isAdmin, refreshToken };
+const clearUserCache = () => {
+  cachedUser = null;
+};
+
+export { isAuthenticated, isAdmin, refreshToken, clearUserCache };
