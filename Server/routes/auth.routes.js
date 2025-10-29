@@ -8,7 +8,7 @@ router.post('/register', register);
 router.post('/register-admin', createAdmin);
 router.post('/login', login);
 router.post('/refresh', refreshToken);
-router.get('/logout', logout);
+router.post('/logout', logout); 
 router.get('/authenticateuser',authenticateToken, authenticatedUser);
 
 

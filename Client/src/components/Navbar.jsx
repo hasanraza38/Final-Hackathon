@@ -59,7 +59,7 @@ const Navbar = () => {
 
   const logout = async () => {
     try {
-      await api.get("/auth/logout");
+      await api.post("/auth/logout"); // Changed to POST
     } catch (error) {
       console.error("Logout API failed:", error);
     } finally {

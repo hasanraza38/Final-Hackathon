@@ -131,6 +131,11 @@ const logout = async (req, res) => {
     console.log("   isProduction:", isProduction);
     console.log("   COOKIE_DOMAIN:", process.env.COOKIE_DOMAIN || "not set");
    
+    // Prevent Vercel from caching logout responses
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    
     const clearOptions = {
       httpOnly: true,
       path: '/',
