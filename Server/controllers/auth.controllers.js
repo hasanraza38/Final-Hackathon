@@ -124,19 +124,27 @@ const login = async (req, res) => {
 // logout
 const logout = async (req, res) => {
   try {
+    console.log("Logout called");
+    console.log("   isProduction:", isProduction);
+    console.log("   COOKIE_DOMAIN:", process.env.COOKIE_DOMAIN || "not set");
+   
     const clearOptions = {
-      httpOnly: true,  
+      httpOnly: true,
       path: '/',
       secure: isProduction,
       sameSite: isProduction ? 'none' : 'lax',
+      expires: new Date(0),
+      maxAge: 0,
     };
 
     if (process.env.COOKIE_DOMAIN && isProduction) {
       clearOptions.domain = process.env.COOKIE_DOMAIN;
     }
 
-    res.clearCookie("accessToken", clearOptions);
-    res.clearCookie("refreshToken", clearOptions);
+    console.log("   Clear options:", clearOptions);
+
+    res.cookie("accessToken", "", clearOptions);
+    res.cookie("refreshToken", "", clearOptions);
 
     res.json({ message: "Logout successful" });
   } catch (error) {
