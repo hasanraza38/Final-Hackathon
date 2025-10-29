@@ -33,11 +33,13 @@ const Navbar = () => {
         }
       } catch (error) {
         console.error("Error checking auth/admin:", error);
+        setIsLoggedIn(false);
+        setAdmin(false);
       }
     };
 
     checkAuthStatus();
-  }, []);
+  }, [location.pathname]); 
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -52,12 +54,15 @@ const Navbar = () => {
   const logout = async () => {
     try {
       await api.get("/auth/logout");
-      clearUserCache(); 
+    } catch (error) {
+      console.error("Logout API failed:", error);
+    } finally {
+      clearUserCache();
       setIsLoggedIn(false);
       setAdmin(false);
+      setIsDropdownOpen(false);
+      
       navigate("/loan-page", { replace: true });
-    } catch (error) {
-      console.error("Logout failed:", error);
     }
   };
 

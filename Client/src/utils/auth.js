@@ -12,8 +12,12 @@ const getUser = async () => {
       cachedUser = res.data.user;
       return cachedUser;
     }
+    cachedUser = null;
     return null;
   } catch (error) {
+    if (error.response?.status === 401) {
+      cachedUser = null;
+    }
     console.error("Error fetching user:", error.response?.data || error.message);
     return null;
   }
@@ -46,6 +50,7 @@ const isAuthenticated = async () => {
     return !!user;
   } catch (error) {
     console.error("Error checking authentication:", error.response?.data || error.message);
+    cachedUser = null; 
     return false;
   }
 };

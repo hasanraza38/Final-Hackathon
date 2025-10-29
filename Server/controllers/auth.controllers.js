@@ -125,6 +125,7 @@ const login = async (req, res) => {
 const logout = async (req, res) => {
   try {
     const clearOptions = {
+      httpOnly: true,  
       path: '/',
       secure: isProduction,
       sameSite: isProduction ? 'none' : 'lax',

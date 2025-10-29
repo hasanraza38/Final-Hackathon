@@ -27,7 +27,12 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (originalRequest.url.includes("/auth/login") || originalRequest.url.includes("/auth/register")) {
+    if (
+      originalRequest.url.includes("/auth/login") || 
+      originalRequest.url.includes("/auth/register") ||
+      originalRequest.url.includes("/auth/logout") ||
+      originalRequest.url.includes("/auth/refresh")
+    ) {
       return Promise.reject(error);
     }
 
