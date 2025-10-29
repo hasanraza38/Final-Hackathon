@@ -100,7 +100,7 @@ const login = async (req, res) => {
   const accessCookieOptions = {
     ...cookieBase,
     secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
+    sameSite: isProduction ? 'None' : 'Lax', 
   };
 
   const refreshCookieOptions = { ...accessCookieOptions };
@@ -135,11 +135,11 @@ const logout = async (req, res) => {
       httpOnly: true,
       path: '/',
       secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
+      sameSite: isProduction ? 'None' : 'Lax',
       expires: new Date(0),
       maxAge: -1, 
     };
-
+    
     if (process.env.COOKIE_DOMAIN && isProduction) {
       clearOptions.domain = process.env.COOKIE_DOMAIN;
     }
@@ -202,7 +202,7 @@ const refreshToken = async (req, res) => {
       path: '/',
       maxAge: 24 * 60 * 60 * 1000,
       secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
+      sameSite: isProduction ? 'None' : 'Lax',
     };
 
     if (process.env.COOKIE_DOMAIN && isProduction) {
